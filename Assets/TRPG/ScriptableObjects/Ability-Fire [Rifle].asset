@@ -19,5 +19,5 @@ MonoBehaviour:
   timerConfig:
     useTimer: 1
     delay: 0.015
-    duration: 0.01
+    duration: 0.03
     clip: {fileID: 0}

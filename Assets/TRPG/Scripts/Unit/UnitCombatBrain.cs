@@ -1,4 +1,5 @@
 using FishNet.Object;
+using FishNet.Object.Synchronizing;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -11,6 +12,8 @@ namespace TRPG.Unit
         [SerializeField] private float range;
 
         private UnitController context;
+
+        private readonly SyncVar<int> fireCounter = new SyncVar<int>();
 
         #region Server-Side fields [These fields cannot be read on client side]
         private List<HealthController> scannedEnemyList = new List<HealthController>();
@@ -77,6 +80,26 @@ namespace TRPG.Unit
             context.WeaponManager.CurrentWeapon.OnDamageTarget(IsOwner);
         }
 
+        [Server]
+        public virtual void Fire()
+        {
+            StartCoroutine(FireCoroutine());
+        }
+
+        private IEnumerator FireCoroutine()
+        {
+            WeaponData currentWeaponData = context.WeaponManager.CurrentWeaponData;
+            while (fireCounter.Value < currentWeaponData.strikeCount)
+            {
+                context.AnimationController.TriggerFireAnimation();
+
+                yield return new WaitForSeconds(currentWeaponData.delayBetweenStrike);
+
+                fireCounter.Value++;
+            }
+
+            fireCounter.Value = 0;
+        }
         #endregion
     }
 }

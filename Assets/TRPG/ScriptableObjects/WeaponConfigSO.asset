@@ -43,8 +43,8 @@ MonoBehaviour:
     weaponName: Rifle
     weaponType: 3
     thumbnail: {fileID: 21300000, guid: c5dcd4deabcf403479a69199b9db58b7, type: 3}
-    strikeCount: 2
-    delayBetweenStrike: 0
+    strikeCount: 3
+    delayBetweenStrike: 0.1
     baseDamage: 30
     baseAccuracy: 75
     range: 100
