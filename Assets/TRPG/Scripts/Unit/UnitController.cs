@@ -75,7 +75,7 @@ namespace TRPG.Unit
             if (IsOwner)
             {
                 selectObj.SetActive(true);
-                GridManager.Singleton.EnableSurroundingCells(NetworkPlayer.RoundVector2(new Vector2(transform.position.x, transform.position.z), 1), data.fov);
+                GridManager.Singleton.EnableSurroundingCells(MathUtil.RoundVector2(new Vector2(transform.position.x, transform.position.z), 1), data.fov);
             }
         }
 

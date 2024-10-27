@@ -42,30 +42,34 @@ public class GridManager : M_Singleton<GridManager>
         return visualGrid2dArray[x, y]; 
     }
 
-    public List<VisualGrid> GetSurroundingCells(Vector2Int centerPos, int range)
+    public List<VisualGrid> GetSurroundingCells(Vector2Int centerPos, int radius)
     {
         List<VisualGrid> surroundingCells = new List<VisualGrid>();
 
-        for (int x = -range; x <= range; x++)
+        for (int x = -radius; x <= radius; x++)
         {
-            for (int y = -range; y <= range; y++)
+            for (int y = -radius; y <= radius; y++)
             {
-                // Skip the center cell
-                if (x == 0 && y == 0) continue;
+                // Calculate the distance from the center cell
+                if (x == 0 && y == 0) continue; // Skip the center cell
 
-                // Calculate the neighbor's grid position
-                int neighborX = centerPos.x + x;
-                int neighborY = centerPos.y + y;
-
-                // Check if within grid bounds
-                if (neighborX >= 0 && neighborX < configGridArea.x && neighborY >= 0 && neighborY < configGridArea.y)
+                if (x * x + y * y <= radius * radius) // Check if within circular radius
                 {
-                    // Add the visual cell at this position
-                    Debug.Log($"Cell=[{neighborX} : {neighborY}]");
-                    surroundingCells.Add(visualGrid2dArray[neighborX, neighborY]);
+                    // Calculate the neighbor's grid position
+                    int neighborX = centerPos.x + x;
+                    int neighborY = centerPos.y + y;
+
+                    // Check if within grid bounds
+                    if (neighborX >= 0 && neighborX < configGridArea.x && neighborY >= 0 && neighborY < configGridArea.y)
+                    {
+                        // Add the visual cell at this position
+                        Debug.Log($"Cell=[{neighborX} : {neighborY}]");
+                        surroundingCells.Add(visualGrid2dArray[neighborX, neighborY]);
+                    }
                 }
             }
         }
+
         return surroundingCells;
     }
 
