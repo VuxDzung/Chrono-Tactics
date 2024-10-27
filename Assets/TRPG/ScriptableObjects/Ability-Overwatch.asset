@@ -9,11 +9,14 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 729494aa22e3143498950c53043419f1, type: 3}
-  m_Name: UN_0001_000001
+  m_Script: {fileID: 11500000, guid: e7a62e68eb48f314f93a28628c65016a, type: 3}
+  m_Name: Ability-Overwatch
   m_EditorClassIdentifier: 
-  id: UN_0001_000001
-  unitName: Dummy
+  type: 0
+  cost: 0
   thumbnail: {fileID: 0}
-  defaultHealth: 100
-  fov: 5
+  steps: 
+  timerConfig:
+    useTimer: 0
+    delay: 0
+    duration: 0

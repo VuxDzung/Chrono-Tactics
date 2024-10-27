@@ -6,6 +6,7 @@ using FishNet.Object.Synchronizing;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System.Linq;
 
 namespace TRPG.Unit
 {
@@ -81,6 +82,11 @@ namespace TRPG.Unit
                 currentPlayerIndex.Value = 0;
 
             nwPlayerList[currentPlayerIndex.Value].StartOwnerTurn();
+        }
+
+        public NetworkPlayer GetPlayer(NetworkConnection owner)
+        {
+            return nwPlayerList.FirstOrDefault(player => player.Owner.Equals(owner));
         }
     }
 }

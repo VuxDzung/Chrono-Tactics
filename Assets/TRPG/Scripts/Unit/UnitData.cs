@@ -11,5 +11,6 @@ namespace TRPG.Unit
         public string unitName;
         public Sprite thumbnail;
         public float defaultHealth;
+        public int fov;
     }
 }

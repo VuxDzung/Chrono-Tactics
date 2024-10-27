@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using TRPG.Unit;
 using FishNet.Object;
+using DevOpsGuy.GUI;
 
 namespace TRPG
 {
@@ -27,11 +28,17 @@ namespace TRPG
         private readonly SyncDictionary<UnitController, int> unitDictionary = new SyncDictionary<UnitController, int>();
         private readonly SyncVar<UnitController> selectedUnit = new SyncVar<UnitController>();
 
+        private HUD hud;
+
 
         public override void OnStartClient()
         {
             base.OnStartClient();
-            OnInitUnits();
+            if (IsOwner)
+            {
+                OnInitUnits();
+                hud = UIManager.GetUI<HUD>();
+            }
         }
 
         [ServerRpc]
@@ -91,7 +98,6 @@ namespace TRPG
                     Vector3 pos = RoundVector3(hit.point, 1);
                     selectedUnit.Value.Motor.MoveTo(pos);
                     SpendActionPoint(selectedUnit.Value, ActionPointCost.Half);
-                    Debug.Log($"UnitDestination={pos}");
                 }
             }
         }
@@ -111,11 +117,13 @@ namespace TRPG
                     {
                         selectedUnit.Deselect();
                         AssignSelectedUnit(null);
+                        hud.ClearUIAbilities();
                     }
                     else
                     {
                         selectedUnit.Select();
                         AssignSelectedUnit(selectedUnit);
+                        selectedUnit.AbilityController.LoadAbilityToUI(hud);
                     }
                 }
             }
@@ -146,6 +154,9 @@ namespace TRPG
             commandInput.LockInput.Value = false;
             isOwnerTurn.Value = true;
             ResetUnitActionPoint();
+
+            foreach (var item in unitDictionary)
+                item.Key.AbilityController.ResetDefaultAbility();
         }
 
         [Server]
@@ -201,6 +212,16 @@ namespace TRPG
             int zA = Mathf.RoundToInt(vector.z / ceilSize);
 
             Vector3Int centerCoordinate = new Vector3Int(xA, yA, zA);
+
+            return centerCoordinate;
+        }
+
+        public static Vector2Int RoundVector2(Vector2 vector, int ceilSize)
+        {
+            int xA = Mathf.RoundToInt(vector.x / ceilSize);
+            int zA = Mathf.RoundToInt(vector.y / ceilSize);
+
+            Vector2Int centerCoordinate = new Vector2Int(xA, zA);
 
             return centerCoordinate;
         }

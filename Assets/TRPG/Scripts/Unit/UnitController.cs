@@ -24,18 +24,24 @@ namespace TRPG.Unit
         public UnitData Data => data;
         public UnitMotor Motor { get; private set; }
         public UnitAnimationController AnimationController { get; private set; }
+        public AbilitiesController AbilityController { get; private set; }
+        public NetworkPlayer UnitOwner { get; private set; }
 
         public override void OnStartNetwork()
         {
             base.OnStartNetwork();
             Motor = GetComponent<UnitMotor>();
             AnimationController = GetComponent<UnitAnimationController>();
+            AbilityController = GetComponent<AbilitiesController>();
 
             Motor.Setup(this);
             AnimationController.Setup(this);
+            AbilityController.Setup(this);
 
-            OnSelectCallback += ShowSelectObj;
-            OnDeselectCallback += HideSelectObj;
+            OnSelectCallback += OnSelectOwner;
+            OnDeselectCallback += OnDeselectOwner;
+
+            UnitOwner = TRPGGameManager.Instance.GetPlayer(Owner);
         }
 
         [ServerRpc]
@@ -64,14 +70,22 @@ namespace TRPG.Unit
             OnDeselectCallback();
         }
 
-        private void ShowSelectObj()
+        private void OnSelectOwner()
         {
-            selectObj.SetActive(true);
+            if (IsOwner)
+            {
+                selectObj.SetActive(true);
+                GridManager.Singleton.EnableSurroundingCells(NetworkPlayer.RoundVector2(new Vector2(transform.position.x, transform.position.z), 1), data.fov);
+            }
         }
 
-        private void HideSelectObj()
+        private void OnDeselectOwner()
         {
-            selectObj.SetActive(false);
+            if (IsOwner)
+            {
+                selectObj.SetActive(false);
+                GridManager.Singleton.DisableAllCells();
+            }
         }
     }
 }

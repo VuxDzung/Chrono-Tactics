@@ -9,14 +9,18 @@ namespace TRPG.Unit
 {
     public class UIUnitAbility : UIContent
     {
-        public Action<string> OnSelectAbility;
+        private const string UI_CONTENT_FORMAT = "UI-Ability [{0}]";
+        public Action<AbilityType> OnSelectAbility;
 
         [SerializeField] private Button button;
 
-        public void Setup(string aId, Action<string> onSelectAbility)
+        private AbilityType abilityType;
+
+        public void Setup(AbilityType type, Action<AbilityType> onSelectAbility)
         {
-            id = aId;
+            abilityType = type;
             OnSelectAbility = onSelectAbility;
+            gameObject.name = string.Format(UI_CONTENT_FORMAT, type.ToString());
         }
 
         private void Start()
@@ -26,7 +30,12 @@ namespace TRPG.Unit
 
         public void Trigger()
         {
-            OnSelectAbility?.Invoke(id);
+            OnSelectAbility?.Invoke(abilityType);
+        }
+
+        public void Activate()
+        {
+            gameObject.SetActive(true);
         }
     }
 }

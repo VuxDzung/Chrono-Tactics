@@ -14,4 +14,6 @@ public class VisualGrid : MonoBehaviour
     {
         gameObject.SetActive(false);
     }
+
+    public bool IsActive => gameObject.activeSelf;
 }

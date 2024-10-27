@@ -119,6 +119,7 @@ GameObject:
   - component: {fileID: 3714779191464314538}
   - component: {fileID: 7670267354871547785}
   - component: {fileID: 7235430138337192017}
+  - component: {fileID: 777677082989124084}
   - component: {fileID: 4623062290997814699}
   - component: {fileID: 8277885562998220770}
   - component: {fileID: 4847263210512190200}
@@ -181,9 +182,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4bd728769db13ff44ae1d2da1108ffe9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _componentIndexCache: 255
+  _componentIndexCache: 0
   _addedNetworkObject: {fileID: 4623062290997814699}
-  _networkObjectCache: {fileID: 0}
+  _networkObjectCache: {fileID: 4623062290997814699}
   data: {fileID: 11400000, guid: 7e2ff54c6b64a1342bdd4cd68b6d6112, type: 2}
   selectObj: {fileID: 3736341040011166014}
 --- !u!114 &7670267354871547785
@@ -198,9 +199,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 55e3a379037e60d48a4ad5aa1cf61f6d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _componentIndexCache: 255
+  _componentIndexCache: 1
   _addedNetworkObject: {fileID: 4623062290997814699}
-  _networkObjectCache: {fileID: 0}
+  _networkObjectCache: {fileID: 4623062290997814699}
 --- !u!114 &7235430138337192017
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -213,9 +214,26 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b8797a74a94a56b4f8eab9cd65e009dc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _componentIndexCache: 255
+  _componentIndexCache: 2
   _addedNetworkObject: {fileID: 4623062290997814699}
-  _networkObjectCache: {fileID: 0}
+  _networkObjectCache: {fileID: 4623062290997814699}
+--- !u!114 &777677082989124084
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3653012913345686984}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3971e936ae5e6c04a9d82c97b2086e7e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _componentIndexCache: 3
+  _addedNetworkObject: {fileID: 4623062290997814699}
+  _networkObjectCache: {fileID: 4623062290997814699}
+  abilityList:
+  - {fileID: 11400000, guid: d0072d67e7a6473438d14997c5bc5ded, type: 2}
 --- !u!114 &4623062290997814699
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -232,7 +250,13 @@ MonoBehaviour:
   <ComponentIndex>k__BackingField: 0
   <PredictedSpawn>k__BackingField: {fileID: 0}
   <PredictedOwner>k__BackingField: {fileID: 0}
-  NetworkBehaviours: []
+  NetworkBehaviours:
+  - {fileID: 3714779191464314538}
+  - {fileID: 7670267354871547785}
+  - {fileID: 7235430138337192017}
+  - {fileID: 777677082989124084}
+  - {fileID: 6209142166378886412}
+  - {fileID: 4451062943497329273}
   <InitializedParentNetworkBehaviour>k__BackingField: {fileID: 0}
   <InitializedNestedNetworkObjects>k__BackingField: []
   _isNetworked: 1
@@ -254,14 +278,14 @@ MonoBehaviour:
   _spectatorInterpolation: 2
   _enableTeleport: 0
   _teleportThreshold: 1
-  <PrefabId>k__BackingField: 65535
+  <PrefabId>k__BackingField: 5
   <SpawnableCollectionId>k__BackingField: 0
   <AssetPathHash>k__BackingField: 13946892682573932431
   <SceneId>k__BackingField: 0
   SerializedTransformProperties:
     Position: {x: 0, y: 0, z: 0}
-    Rotation: {x: 0, y: 0, z: 0, w: 0}
-    LocalScale: {x: 0, y: 0, z: 0}
+    Rotation: {x: 0, y: 0, z: 0, w: 1}
+    LocalScale: {x: 1, y: 1, z: 1}
 --- !u!195 &8277885562998220770
 NavMeshAgent:
   m_ObjectHideFlags: 0
@@ -319,9 +343,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a2836e36774ca1c4bbbee976e17b649c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _componentIndexCache: 255
+  _componentIndexCache: 4
   _addedNetworkObject: {fileID: 4623062290997814699}
-  _networkObjectCache: {fileID: 0}
+  _networkObjectCache: {fileID: 4623062290997814699}
   _componentConfiguration: 0
   _synchronizeParent: 0
   _packing:
@@ -362,9 +386,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e8cac635f24954048aad3a6ff9110beb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _componentIndexCache: 255
+  _componentIndexCache: 5
   _addedNetworkObject: {fileID: 4623062290997814699}
-  _networkObjectCache: {fileID: 0}
+  _networkObjectCache: {fileID: 4623062290997814699}
   IgnoredParameters: []
   _animator: {fileID: 4345701927027453580}
   _synchronizeWhenDisabled: 0
