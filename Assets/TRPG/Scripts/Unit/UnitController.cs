@@ -29,6 +29,7 @@ namespace TRPG.Unit
         public UnitAnimationController AnimationController { get; private set; }
         public AbilitiesController AbilityController { get; private set; }
         public NetworkPlayer UnitOwner { get; private set; }
+        public UnitCombatBrain CombatBrain { get; private set; }
 
         public override void OnStartNetwork()
         {
@@ -36,13 +37,15 @@ namespace TRPG.Unit
             Motor = GetComponent<UnitMotor>();
             AnimationController = GetComponent<UnitAnimationController>();
             AbilityController = GetComponent<AbilitiesController>();
+            CombatBrain = GetComponent<UnitCombatBrain>();
 
             Motor.Setup(this);
             AnimationController.Setup(this);
             AbilityController.Setup(this);
+            CombatBrain.Setup(this);
 
-            OnSelectCallback += OnSelectOwner;
-            OnDeselectCallback += OnDeselectOwner;
+            OnSelectCallback += SelectOwnerCallback;
+            OnDeselectCallback += DeselectOwnerCallback;
 
             UnitOwner = TRPGGameManager.Instance.GetPlayer(Owner);
 
@@ -86,7 +89,8 @@ namespace TRPG.Unit
             OnDeselectCallback();
         }
 
-        private void OnSelectOwner()
+        [Client]
+        private void SelectOwnerCallback()
         {
             if (IsOwner)
             {
@@ -95,7 +99,8 @@ namespace TRPG.Unit
             }
         }
 
-        private void OnDeselectOwner()
+        [Client]
+        private void DeselectOwnerCallback()
         {
             if (IsOwner)
             {
@@ -143,13 +148,13 @@ namespace TRPG.Unit
         #region TP Camera Controller 
 
         [Client]
-        protected virtual void EnableTPCamera()
+        public virtual void EnableTPCamera()
         {
             tpCamera.enabled = true;
         }
 
         [Client]
-        protected virtual void DisableTPCamera()
+        public virtual void DisableTPCamera()
         {
             tpCamera.enabled = false;
             SceneCamera.Singleton.ResetCameraTransform();

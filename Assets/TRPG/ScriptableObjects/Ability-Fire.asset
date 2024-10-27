@@ -17,6 +17,6 @@ MonoBehaviour:
   thumbnail: {fileID: 0}
   steps: 0000000001000000
   timerConfig:
-    useTimer: 0
-    delay: 0
-    duration: 0
+    useTimer: 1
+    delay: 0.05
+    duration: 0.2

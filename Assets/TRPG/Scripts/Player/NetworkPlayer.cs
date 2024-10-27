@@ -17,7 +17,9 @@ namespace TRPG
 
     public class NetworkPlayer : CoreNetworkBehaviour
     {
-        private readonly SyncVar<bool> isOwnerTurn = new SyncVar<bool>();
+        private const string UNIT_NAME_FORMAT = "Unit [Owner:{0} | Index:[{1}]]";
+
+
         [SerializeField] private CommandInputManager commandInput;
         [SerializeField] private LayerMask unitLayer;
         [SerializeField] private LayerMask groundLayer;
@@ -26,6 +28,7 @@ namespace TRPG
 
         private const int DEFAULT_ACTION_POINT = 2;
 
+        private readonly SyncVar<bool> isOwnerTurn = new SyncVar<bool>();
         private readonly SyncDictionary<UnitController, int> unitDictionary = new SyncDictionary<UnitController, int>();
         private readonly SyncVar<UnitController> selectedUnit = new SyncVar<UnitController>();
 
@@ -46,6 +49,7 @@ namespace TRPG
         protected virtual void OnInitUnits()
         {
             UnitController unit = Instantiate(testUnitPrefab, testPosition.position, Quaternion.identity);
+            unit.gameObject.name = string.Format(UNIT_NAME_FORMAT, OwnerId, unitDictionary.Count);
             ServerManager.Spawn(unit.gameObject, Owner);
             RegisterUnit(unit);
         }
@@ -71,7 +75,7 @@ namespace TRPG
             if (IsOwner)
             {
                 SelectUnitInput();
-                MovePlayerUnit();
+                MovePlayerUnitInput();
             }
         }
 
@@ -87,7 +91,7 @@ namespace TRPG
             }
         }
 
-        protected virtual void MovePlayerUnit()
+        protected virtual void MovePlayerUnitInput()
         {
             if (commandInput.RightMouseDown)
             {
@@ -96,6 +100,23 @@ namespace TRPG
                 {
                     OnMovePlayerUnit(hit.point);
                 }
+            }
+        }
+
+        protected virtual void ChangeFireTargetInput()
+        {
+            if (commandInput.Tab)
+            {
+
+            }
+        }
+
+        [ServerRpc]
+        private void OnChangeFireTarget()
+        {
+            if (selectedUnit.Value != null)
+            {
+                selectedUnit.Value.CombatBrain.ChangeToNextTarget();
             }
         }
 

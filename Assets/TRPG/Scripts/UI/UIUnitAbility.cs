@@ -13,8 +13,7 @@ namespace TRPG.Unit
         public Action<AbilityType> OnSelectAbility;
 
         [SerializeField] private Button button;
-
-        private AbilityType abilityType;
+        [SerializeField] private AbilityType abilityType;
 
         public void Setup(AbilityType type, Action<AbilityType> onSelectAbility)
         {

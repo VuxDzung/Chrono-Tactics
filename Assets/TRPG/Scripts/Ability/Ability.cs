@@ -43,7 +43,7 @@ namespace TRPG
         public AbilityStep[] Steps => steps;
 
         public Sprite Thumbnail => thumbnail;
-        private UnitController context;
+        protected UnitController context;
 
         public virtual void Setup(UnitController context)
         {

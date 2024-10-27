@@ -52,6 +52,8 @@ namespace TRPG.Unit
         {
             this.context = context;
             abilityList.ForEach(a => {
+                a.Setup(context);
+
                 OnSelectAbilityServer += a.OnSelectServer;
                 OnActivateAbilityServer += a.OnActivateServer;
                 OnDeselectAbilityServer += a.OnDeactivateServer;
@@ -67,15 +69,17 @@ namespace TRPG.Unit
             });
         }
 
+        public override void Update()
+        {
+            base.Update();
+            float deltaTime = Time.deltaTime;
+            delayTimer.Update(deltaTime);
+            durationTimer.Update(deltaTime);
+        }
+
         public void LoadAbilityToUI(HUD hud)
         {
             abilityList.ForEach(a => hud.AssignUIAbility(a.Type, a.Thumbnail, SelectAbility));
-        }
-
-        public virtual void SetTimer(float delay, float duration)
-        {
-            _delay = delay;
-            _duration = duration;
         }
 
         [ServerRpc]
@@ -83,12 +87,8 @@ namespace TRPG.Unit
         {
             OnDeselectAbilityServer?.Invoke(currentAbility.Value);
             currentAbility.Value = AbilityType.None;
+            ResetDefaultAbility();
             OnDeselectAbilityCallback();
-        }
-
-        public virtual void ResetDefaultAbility()
-        {
-            currentAbility.Value = AbilityType.None;
         }
 
         [ServerRpc]
@@ -98,21 +98,21 @@ namespace TRPG.Unit
 
             Ability queryAbility = abilityList.FirstOrDefault(a => a.Type == type);
             currentAbility.Value = type;
-
+            Debug.Log($"{gameObject.name}.SelectAbility={type}");
             ExecuteCurrentStep();
         }
 
         [ServerRpc]
         public virtual void ConfirmAbility()
         {
+            if (!context.IsSelected) return;
+
             ExecuteCurrentStep();
         }
 
         [Server]
         private void ExecuteCurrentStep()
         {
-            if (!context.IsSelected) return;
-
             Ability queryAbility = abilityList.FirstOrDefault(a => a.Type == currentAbility.Value);
 
             if (queryAbility == null || currentStepIndex.Value >= queryAbility.Steps.Length)
@@ -147,7 +147,36 @@ namespace TRPG.Unit
             currentStepIndex.Value++;
         }
 
-        #region Client Rpc
+        [Server]
+        public virtual void ResetDefaultAbility()
+        {
+            currentAbility.Value = AbilityType.None;
+            currentStepIndex.Value = 0;
+        }
+
+        [Server]
+        public virtual void TryStartAbility(Ability ability)
+        {
+            Debug.Log($"{gameObject.name}.TryStartAbility.STATUS=STARTED");
+            OnActivateAbilityServer?.Invoke(currentAbility.Value);
+            OnActivateAbilityCallback();
+            context.UnitOwner.SpendActionPoint(context, ability.Cost);
+
+            if (ability.TimerConfig.useTimer)
+            {
+                SetTimer(ability.TimerConfig.delay, ability.TimerConfig.duration);
+                delayTimer.StartTimer(_delay);
+            }
+        }
+
+        [Server]
+        protected virtual void SetTimer(float delay, float duration)
+        {
+            _delay = delay;
+            _duration = duration;
+        }
+
+        #region Client Rpc [Callback]
         [ObserversRpc]
         private void OnSelectAbilityCallback()
         {
@@ -167,21 +196,7 @@ namespace TRPG.Unit
         }
         #endregion
 
-        [Server]
-        public virtual void TryStartAbility(Ability ability)
-        {
-            if (HasActiveAbility) return;
-
-            OnActivateAbilityServer?.Invoke(currentAbility.Value);
-            OnActivateAbilityCallback();
-            context.UnitOwner.SpendActionPoint(context, ability.Cost);
-            if (ability.TimerConfig.useTimer)
-            {
-                SetTimer(ability.TimerConfig.delay, ability.TimerConfig.duration);
-                delayTimer.StartTimer(_delay);
-            }
-        }
-
+        #region Timer 
         public virtual void OnDelayChange(SyncTimerOperation op, float prev, float next, bool asServer)
         {
             if (op == SyncTimerOperation.Start)
@@ -222,5 +237,6 @@ namespace TRPG.Unit
                 //After finish the skill, reset all the flag variables back to default.
                 currentAbility.Value = AbilityType.None;
         }
+        #endregion
     }
 }

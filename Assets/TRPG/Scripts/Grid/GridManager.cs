@@ -63,7 +63,6 @@ public class GridManager : M_Singleton<GridManager>
                     if (neighborX >= 0 && neighborX < configGridArea.x && neighborY >= 0 && neighborY < configGridArea.y)
                     {
                         // Add the visual cell at this position
-                        Debug.Log($"Cell=[{neighborX} : {neighborY}]");
                         surroundingCells.Add(visualGrid2dArray[neighborX, neighborY]);
                     }
                 }

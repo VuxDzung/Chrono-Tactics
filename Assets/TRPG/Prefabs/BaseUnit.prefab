@@ -120,6 +120,8 @@ GameObject:
   - component: {fileID: 7670267354871547785}
   - component: {fileID: 7235430138337192017}
   - component: {fileID: 777677082989124084}
+  - component: {fileID: 1292523713308021733}
+  - component: {fileID: 4263450168224422656}
   - component: {fileID: 4623062290997814699}
   - component: {fileID: 8277885562998220770}
   - component: {fileID: 4847263210512190200}
@@ -235,6 +237,41 @@ MonoBehaviour:
   _networkObjectCache: {fileID: 4623062290997814699}
   abilityList:
   - {fileID: 11400000, guid: d0072d67e7a6473438d14997c5bc5ded, type: 2}
+--- !u!114 &1292523713308021733
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3653012913345686984}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d6f789f019e9b364389250a8ee55e70a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _componentIndexCache: 4
+  _addedNetworkObject: {fileID: 4623062290997814699}
+  _networkObjectCache: {fileID: 4623062290997814699}
+  maxHealth: 100
+--- !u!114 &4263450168224422656
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3653012913345686984}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c19ebeffe439d6549a78c98651f88249, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _componentIndexCache: 255
+  _addedNetworkObject: {fileID: 4623062290997814699}
+  _networkObjectCache: {fileID: 0}
+  enemyLayer:
+    serializedVersion: 2
+    m_Bits: 64
+  range: 100
 --- !u!114 &4623062290997814699
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -256,6 +293,7 @@ MonoBehaviour:
   - {fileID: 7670267354871547785}
   - {fileID: 7235430138337192017}
   - {fileID: 777677082989124084}
+  - {fileID: 1292523713308021733}
   - {fileID: 6209142166378886412}
   - {fileID: 4451062943497329273}
   <InitializedParentNetworkBehaviour>k__BackingField: {fileID: 0}
@@ -344,7 +382,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a2836e36774ca1c4bbbee976e17b649c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _componentIndexCache: 4
+  _componentIndexCache: 5
   _addedNetworkObject: {fileID: 4623062290997814699}
   _networkObjectCache: {fileID: 4623062290997814699}
   _componentConfiguration: 0
@@ -387,7 +425,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e8cac635f24954048aad3a6ff9110beb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _componentIndexCache: 5
+  _componentIndexCache: 6
   _addedNetworkObject: {fileID: 4623062290997814699}
   _networkObjectCache: {fileID: 4623062290997814699}
   IgnoredParameters: []
