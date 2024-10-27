@@ -36,6 +36,7 @@ namespace TRPG.Unit
 
         public bool HasActiveAbility => currentAbility.Value != AbilityType.None;
 
+        //Server-Side fields [Cannot read on client]
         private float _delay;
         private float _duration;
 
@@ -46,6 +47,15 @@ namespace TRPG.Unit
 
             AimHUD.OnFire += ConfirmAbility;
             AimHUD.OnCancel += CancelAbility;
+        }
+
+        private void OnDestroy()
+        {
+            delayTimer.OnChange -= OnDelayChange;
+            durationTimer.OnChange -= OnDurationChange;
+
+            AimHUD.OnFire -= ConfirmAbility;
+            AimHUD.OnCancel -= CancelAbility;
         }
 
         public virtual void Setup(UnitController context)
