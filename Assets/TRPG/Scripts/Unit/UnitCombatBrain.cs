@@ -52,5 +52,31 @@ namespace TRPG.Unit
             HealthController enemy = scannedEnemyList[currentEnemyIndex];
             transform.LookAt(enemy.transform.position);
         }
+
+        #region Animation Events
+
+        public void OnDamage()
+        {
+            if (IsServerInitialized)
+                OnDamageServer();
+
+            if (IsClientInitialized)
+                OnDamageClient();
+        }
+
+        [Server]
+        private void OnDamageServer()
+        {
+            
+        }
+
+        [Client]
+        private void OnDamageClient()
+        {
+            Debug.Log("OnDamage");
+            context.WeaponManager.CurrentWeapon.OnDamageTarget(IsOwner);
+        }
+
+        #endregion
     }
 }

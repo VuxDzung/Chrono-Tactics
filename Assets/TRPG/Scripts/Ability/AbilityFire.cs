@@ -1,4 +1,5 @@
 using DevOpsGuy.GUI;
+using FishNet.Object;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -48,8 +49,20 @@ namespace TRPG.Unit
             if (isOwner)
             {
                 UIManager.HideUI<AimHUD>();
-                context.AnimationController.TriggerFireAnimation();
             }  
+        }
+
+        public override void OnActivateServer(AbilityType type)
+        {
+            base.OnActivateServer(type);
+            context.AnimationController.StartFire();
+        }
+
+        public override void OnDurationStart(AbilityType type, bool asServer)
+        {
+            base.OnDurationStart(type, asServer);
+            if (!asServer)
+                context.AnimationController.TriggerFireAnimation();
         }
 
         public override void OnDurationFinished(AbilityType type, bool asServer)
@@ -58,6 +71,7 @@ namespace TRPG.Unit
             if (asServer)
             {
                 context.AbilityController.ResetDefaultAbility();
+                context.AnimationController.StopFire();
             }
 
             if (!asServer)

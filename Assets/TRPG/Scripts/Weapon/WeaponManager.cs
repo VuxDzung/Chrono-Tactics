@@ -22,10 +22,12 @@ namespace TRPG
         private readonly SyncVar<BaseWeapon> secondaryWeaponObj = new SyncVar<BaseWeapon>();
         private readonly SyncVar<BaseWeapon> selectedWeapon = new SyncVar<BaseWeapon>();
 
+        public BaseWeapon CurrentWeapon => selectedWeapon.Value;
+        public WeaponData CurrentWeaponData => config.GetDataBydId(selectedWeaponId.Value);
+
         public virtual void Setup(UnitController context)
         {
             this.context = context;
-            
         }
 
         public override void OnStartClient()
@@ -64,6 +66,8 @@ namespace TRPG
             secondaryWeaponObj.Value = _secondaryWeapon;
 
             selectedWeapon.Value = primaryWeaponObj.Value;
+
+            selectedWeaponId.Value = primaryWeaponId.Value;
         }
 
         public virtual void LoadWeaponUI()

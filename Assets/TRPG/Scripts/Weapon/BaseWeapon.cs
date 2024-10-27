@@ -3,8 +3,12 @@ using UnityEngine;
 
 namespace TRPG
 {
+    [RequireComponent(typeof(AudioSource))]
     public class BaseWeapon : CoreNetworkBehaviour
     {
+        [SerializeField] private AudioSource m_AudioSource;
+        [SerializeField] private AudioClip m_Clip;
+
         [Server]
         public void SetParent(Transform parent)
         {
@@ -25,9 +29,10 @@ namespace TRPG
         /// <summary>
         /// Play Muzzle VFX, Fire SFX, Hit VFX/SFX (Melee).
         /// </summary>
-        public virtual void OnDamageTarget()
+        [Client]
+        public virtual void OnDamageTarget(bool isOwner)
         {
-
+            m_AudioSource.PlayOneShot(m_Clip);
         }
     }
 }

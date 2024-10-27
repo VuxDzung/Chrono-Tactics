@@ -11,6 +11,7 @@ namespace TRPG.Unit
     {
         #region Animator Parameters
         public static int PARAM_MOVE_MAGNITUDE = Animator.StringToHash("MoveMagnitude");
+        public static int PARAM_STOP_FIRE = Animator.StringToHash("StopFire");
         #endregion
 
         #region Animator Layer Index 
@@ -57,6 +58,16 @@ namespace TRPG.Unit
         public virtual void CrossFade(string state, float duration, int layerIndex)
         {
             nwAnimator.CrossFadeInFixedTime(state, duration, layerIndex);
+        }
+
+        public void StartFire()
+        {
+            animator.SetBool(PARAM_STOP_FIRE, false);
+        }
+
+        public void StopFire()
+        {
+            animator.SetBool(PARAM_STOP_FIRE, true);
         }
     }
 }

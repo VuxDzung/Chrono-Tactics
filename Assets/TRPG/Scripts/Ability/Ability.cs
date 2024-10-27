@@ -27,6 +27,7 @@ namespace TRPG
         public bool useTimer;
         public float delay;
         public float duration;
+        public AnimationClip clip;
     }
 
     public class Ability : ScriptableObject
@@ -56,6 +57,7 @@ namespace TRPG
             return type == targetType;
         }
 
+        #region Server-Side
         public virtual void OnSelectServer(AbilityType type)
         {
             if (!IsAbilityType(type)) return;
@@ -68,7 +70,9 @@ namespace TRPG
         {
             if (!IsAbilityType(type)) return;
         }
+        #endregion
 
+        #region Callback
         public virtual void OnSelectCallback(AbilityType type, bool isOwner)
         {
             if (!IsAbilityType(type)) return;
@@ -81,8 +85,9 @@ namespace TRPG
         {
             if (!IsAbilityType(type)) return;
         }
+        #endregion
 
-
+        #region Timer
         public virtual void OnDelayStarted(AbilityType type, bool asServer)
         {
             if (!IsAbilityType(type)) return;
@@ -99,5 +104,6 @@ namespace TRPG
         {
             if (!IsAbilityType(type)) return;
         }
+        #endregion
     }
 }

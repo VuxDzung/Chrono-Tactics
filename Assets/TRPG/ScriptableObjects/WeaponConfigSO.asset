@@ -17,10 +17,12 @@ MonoBehaviour:
     weaponName: Sword
     weaponType: 1
     thumbnail: {fileID: 0}
+    strikeCount: 1
+    delayBetweenStrike: 0
     baseDamage: 70
     baseAccuracy: 100
     range: 2
-    weaponPrefab: {fileID: -2394821947295633531, guid: 19df556a25b21e1498267a8f07f1643b,
+    weaponPrefab: {fileID: 5656457352952142317, guid: 4f1c9e0a8e85d90468b22e5e7b2bbd47,
       type: 3}
     activeHandler: 0
     inactiveHandler: 2
@@ -28,10 +30,12 @@ MonoBehaviour:
     weaponName: Pistol
     weaponType: 2
     thumbnail: {fileID: 21300000, guid: 4ea08d65514b1c84ab21127b786a4fb8, type: 3}
+    strikeCount: 1
+    delayBetweenStrike: 0
     baseDamage: 20
     baseAccuracy: 60
     range: 30
-    weaponPrefab: {fileID: -2394821947295633531, guid: ab1da57eac2a2094d8b0808820cf972a,
+    weaponPrefab: {fileID: 2686027023323907698, guid: eb6ddc10c6ac3114c85c213d054ed31f,
       type: 3}
     activeHandler: 0
     inactiveHandler: 3
@@ -39,10 +43,12 @@ MonoBehaviour:
     weaponName: Rifle
     weaponType: 3
     thumbnail: {fileID: 21300000, guid: c5dcd4deabcf403479a69199b9db58b7, type: 3}
+    strikeCount: 2
+    delayBetweenStrike: 0
     baseDamage: 30
     baseAccuracy: 75
     range: 100
-    weaponPrefab: {fileID: -2394821947295633531, guid: 0afba3ac40478eb49801758fd8a581a2,
+    weaponPrefab: {fileID: 4902682818893096921, guid: 56cbfe61beb799e448e0b915dd55feae,
       type: 3}
     activeHandler: 0
     inactiveHandler: 2

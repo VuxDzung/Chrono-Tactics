@@ -26,6 +26,11 @@ namespace TRPG
         public string weaponName;
         public WeaponType weaponType;
         public Sprite thumbnail;
+        /// <summary>
+        /// This represent how many times this weapon perform a strike/shoot.
+        /// </summary>
+        public int strikeCount = 1;
+        public float delayBetweenStrike;
         public float baseDamage = 10f;
         [Range(1f, 100f)]
         public float baseAccuracy = 80;

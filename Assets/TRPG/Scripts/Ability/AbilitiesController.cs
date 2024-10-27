@@ -175,7 +175,7 @@ namespace TRPG.Unit
 
             if (ability.TimerConfig.useTimer)
             {
-                SetTimer(ability.TimerConfig.delay, ability.TimerConfig.duration);
+                SetTimer(ability.TimerConfig.delay, ability.TimerConfig.clip != null ? ability.TimerConfig.clip.length : ability.TimerConfig.duration);
                 delayTimer.StartTimer(_delay);
             }
         }
@@ -184,7 +184,7 @@ namespace TRPG.Unit
         protected virtual void SetTimer(float delay, float duration)
         {
             _delay = delay;
-            _duration = duration;
+            _duration = duration * context.WeaponManager.CurrentWeaponData.strikeCount; //The animation shall represent the strike count amount!
         }
 
         #region Client Rpc [Callback]
