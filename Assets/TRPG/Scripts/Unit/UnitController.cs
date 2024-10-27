@@ -1,3 +1,4 @@
+using Cinemachine;
 using FishNet.Object;
 using FishNet.Object.Synchronizing;
 using System;
@@ -17,6 +18,7 @@ namespace TRPG.Unit
 
         [SerializeField] private UnitData data;
         [SerializeField] private GameObject selectObj;
+        [SerializeField] private CinemachineVirtualCamera tpCamera;
 
         private readonly SyncVar<bool> isSelected = new SyncVar<bool>();
 
@@ -46,6 +48,16 @@ namespace TRPG.Unit
 
             Motor.OnMoveStartedCallback += StartMove;
             Motor.OnMoveFinishedCallback += OnReachedDestination;
+        }
+
+        public override void OnStartClient()
+        {
+            base.OnStartClient();
+            if (IsOwner)
+            {
+                tpCamera = GetComponentInChildren<CinemachineVirtualCamera>();
+                tpCamera.enabled = false;
+            }
         }
 
         [ServerRpc]
@@ -93,17 +105,22 @@ namespace TRPG.Unit
         }
 
         #region Locomotion 
-
+        [Client]
         private void StartMove(bool isOwner)
         {
             if (isOwner)
-                GridManager.Singleton.DisableAllCells();
+            {
+                GridManager.Singleton.DisableAllCells(); 
+                EnableTPCamera();
+            }
         }
 
+        [Client]
         private void OnReachedDestination(bool isOwner)
         {
             if (isOwner)
             {
+                DisableTPCamera();
                 if (UnitOwner.HasEnoughPoint(this))
                     GridManager.Singleton.EnableSurroundingCells(MathUtil.RoundVector2(new Vector2(transform.position.x, transform.position.z), 1), data.fov);
             }
@@ -121,6 +138,23 @@ namespace TRPG.Unit
             }
             return false;
         }
+        #endregion
+
+        #region TP Camera Controller 
+
+        [Client]
+        protected virtual void EnableTPCamera()
+        {
+            tpCamera.enabled = true;
+        }
+
+        [Client]
+        protected virtual void DisableTPCamera()
+        {
+            tpCamera.enabled = false;
+            SceneCamera.Singleton.ResetCameraTransform();
+        }
+
         #endregion
     }
 }
