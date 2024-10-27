@@ -103,7 +103,8 @@ namespace TRPG.Unit
             if (IsOwner)
             {
                 selectObj.SetActive(true);
-                GridManager.Singleton.EnableSurroundingCells(transform.position, data.fov);
+                if (HasEnoughPoint)
+                    EnableCellsAroundUnit();
             }
         }
 
@@ -134,7 +135,7 @@ namespace TRPG.Unit
             if (isOwner)
             {
                 DisableTPCamera();
-                if (UnitOwner.HasEnoughPoint(this))
+                if (HasEnoughPoint)
                     EnableCellsAroundUnit();
             }
         }
@@ -142,12 +143,15 @@ namespace TRPG.Unit
         [Server]
         public bool TryMove(Vector3 destination)
         {
-            Vector3Int roundedDestination = MathUtil.RoundVector3(destination, 1);
-            Vector3Int roundedPos = MathUtil.RoundVector3(transform.position, 1);
-            if (Vector3Int.Distance(roundedPos, roundedDestination) <= data.fov)
+            if (HasEnoughPoint)
             {
-                Motor.MoveTo(roundedDestination);
-                return true;
+                Vector3Int roundedDestination = MathUtil.RoundVector3(destination, 1);
+                Vector3Int roundedPos = MathUtil.RoundVector3(transform.position, 1);
+                if (Vector3Int.Distance(roundedPos, roundedDestination) <= data.fov)
+                {
+                    Motor.MoveTo(roundedDestination);
+                    return true;
+                }
             }
             return false;
         }

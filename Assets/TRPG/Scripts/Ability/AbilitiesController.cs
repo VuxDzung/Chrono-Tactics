@@ -96,7 +96,6 @@ namespace TRPG.Unit
         public void CancelAbility()
         {
             OnDeselectAbilityServer?.Invoke(currentAbility.Value);
-            currentAbility.Value = AbilityType.None;
             ResetDefaultAbility();
             OnDeselectAbilityCallback();
         }

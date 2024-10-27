@@ -14,6 +14,7 @@ namespace TRPG
         public static Action OnEndTurn;
         public static Action OnNextUnit;
         public static Action OnPrevUnit;
+        public static Action OnSwapWeapon;
 
         [SerializeField] private TextMeshProUGUI tmpUnitName;
         [SerializeField] private UIUnitAbility uiAbility;
@@ -21,14 +22,19 @@ namespace TRPG
         [SerializeField] private Button btnEndTurn;
         [SerializeField] private Button btnNextUnit;
         [SerializeField] private Button btnPrevUnit;
+        [SerializeField] private Button btnSwapWeapon;
+        [SerializeField] private UISwapSpriteField swapSpriteField;
 
         private List<UIUnitAbility> uiAbilityList = new List<UIUnitAbility>();
+
+        public UISwapSpriteField SwapSpriteField => swapSpriteField;
 
         private void OnEnable()
         {
             btnEndTurn.onClick.AddListener(EndTurn);
             btnNextUnit.onClick.AddListener(ChangeNextUnit);
             btnPrevUnit.onClick.AddListener(OnChangePrevUnit);
+            btnSwapWeapon.onClick.AddListener(SwapWeapon);
         }
 
         private void OnDisable()
@@ -36,6 +42,7 @@ namespace TRPG
             btnEndTurn.onClick.RemoveListener(EndTurn);
             btnNextUnit.onClick.RemoveListener(ChangeNextUnit);
             btnPrevUnit.onClick.RemoveListener(OnChangePrevUnit);
+            btnSwapWeapon.onClick.RemoveListener(SwapWeapon);
         }
 
         public void SetUnitName(string unitName)
@@ -71,6 +78,12 @@ namespace TRPG
         private void OnChangePrevUnit()
         {
             OnPrevUnit?.Invoke();
+        }
+
+        private void SwapWeapon()
+        {
+            OnSwapWeapon?.Invoke();
+            swapSpriteField.Swap();
         }
     }
 }

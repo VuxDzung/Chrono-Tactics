@@ -25,6 +25,7 @@ namespace TRPG
         public string id;
         public string weaponName;
         public WeaponType weaponType;
+        public Sprite thumbnail;
         public float baseDamage = 10f;
         [Range(1f, 100f)]
         public float baseAccuracy = 80;

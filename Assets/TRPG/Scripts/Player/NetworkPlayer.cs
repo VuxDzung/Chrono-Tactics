@@ -140,16 +140,15 @@ namespace TRPG
         [ServerRpc]
         protected virtual void OnMovePlayerUnit(Vector3 destination)
         {
-            if (!HasEnoughPoint(selectedUnit.Value)) return;
-
-            selectedUnit.Value.TryMove(destination);
-            SpendActionPoint(selectedUnit.Value, ActionPointCost.Half);
+            if (selectedUnit.Value.TryMove(destination))
+                SpendActionPoint(selectedUnit.Value, ActionPointCost.Half);
         }
 
         /// <summary>
         /// When select an unit, the unit visual select shall show up along with the unit's UI.
         /// </summary>
         /// <param name="hit"></param>
+        [Client]
         protected virtual void OnSelectUnit(RaycastHit hit)
         {
             UnitController selectedUnit = hit.transform.GetComponent<UnitController>();
@@ -169,6 +168,7 @@ namespace TRPG
                         selectedUnit.Select();
                         AssignSelectedUnit(selectedUnit);
                         selectedUnit.AbilityController.LoadAbilityToUI(hud);
+                        selectedUnit.WeaponManager.LoadWeaponUI();
                     }
                 }
             }

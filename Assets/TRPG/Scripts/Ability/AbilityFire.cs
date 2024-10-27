@@ -55,9 +55,14 @@ namespace TRPG.Unit
         public override void OnDurationFinished(AbilityType type, bool asServer)
         {
             base.OnDurationFinished(type, asServer);
+            if (asServer)
+            {
+                context.AbilityController.ResetDefaultAbility();
+            }
+
             if (!asServer)
             {
-                context.AbilityController.CancelAbility();
+                context.DisableTPCamera();
             }
         }
         #endregion
