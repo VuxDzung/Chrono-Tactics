@@ -53,7 +53,7 @@ public class GridManager : M_Singleton<GridManager>
                 // Calculate the distance from the center cell
                 if (x == 0 && y == 0) continue; // Skip the center cell
 
-                if (x * x + y * y <= radius * radius) // Check if within circular radius
+                if (x * x + y * y < radius * radius) // Check if within circular radius
                 {
                     // Calculate the neighbor's grid position
                     int neighborX = centerPos.x + x;
@@ -72,9 +72,9 @@ public class GridManager : M_Singleton<GridManager>
         return surroundingCells;
     }
 
-    public void EnableSurroundingCells(Vector2Int centerPos, int range)
+    public void EnableSurroundingCells(Vector2Int centerPos, int radius)
     {
-        List<VisualGrid> gridCells = GetSurroundingCells(centerPos, range);
+        List<VisualGrid> gridCells = GetSurroundingCells(centerPos, radius);
         gridCells.ForEach(cell => cell.Select());
     }
 

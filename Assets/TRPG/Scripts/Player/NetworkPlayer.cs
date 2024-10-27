@@ -31,9 +31,9 @@ namespace TRPG
         private readonly SyncVar<bool> isOwnerTurn = new SyncVar<bool>();
         private readonly SyncDictionary<UnitController, int> unitDictionary = new SyncDictionary<UnitController, int>();
         private readonly SyncVar<UnitController> selectedUnit = new SyncVar<UnitController>();
+        private readonly SyncVar<int> currentUnitIndex = new SyncVar<int>();
 
         private HUD hud;
-
 
         public override void OnStartClient()
         {
@@ -42,6 +42,9 @@ namespace TRPG
             {
                 OnInitUnits();
                 hud = UIManager.GetUI<HUD>();
+
+                HUD.OnNextUnit += ChangeNextUnit;
+                HUD.OnPrevUnit += ChangePrevUnit;
             }
         }
 
@@ -109,6 +112,20 @@ namespace TRPG
             {
 
             }
+        }
+
+        protected virtual void ChangeNextUnit()
+        {
+            currentUnitIndex.Value++;
+            if (currentUnitIndex.Value >= unitDictionary.Count)
+                currentUnitIndex.Value = 0;
+        }
+
+        protected virtual void ChangePrevUnit()
+        {
+            currentUnitIndex.Value--;
+            if (currentUnitIndex.Value < 0)
+                currentUnitIndex.Value = unitDictionary.Count - 1;
         }
 
         [ServerRpc]
@@ -225,7 +242,6 @@ namespace TRPG
             return unitDictionary[unit] > 0;
         }
         #endregion
-
 
         public Ray GetRay()
         {

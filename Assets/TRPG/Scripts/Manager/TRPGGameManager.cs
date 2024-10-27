@@ -29,6 +29,15 @@ namespace TRPG.Unit
             networkManager.SceneManager.OnClientLoadedStartScenes += SceneManager_OnClientLoadedStartScenes;
         }
 
+        public override void OnStartClient()
+        {
+            base.OnStartClient();
+            if (IsOwner)
+            {
+                HUD.OnEndTurn += ChangeNextPlayerTurn;
+            }
+        }
+
         private void Initialize()
         {
             // Get the NetworkManager instance
