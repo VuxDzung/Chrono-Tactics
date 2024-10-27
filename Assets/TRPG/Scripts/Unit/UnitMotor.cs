@@ -19,6 +19,7 @@ namespace TRPG.Unit
 
         private readonly SyncVar<Vector3> syncPosition = new SyncVar<Vector3>();
         private readonly SyncVar<Quaternion> syncRotation = new SyncVar<Quaternion>();
+        private readonly SyncVar<bool> isMoving = new SyncVar<bool>();
 
         private NavMeshAgent navMeshAgent;
         private UnitController context;
@@ -26,6 +27,8 @@ namespace TRPG.Unit
         public float MoveMagnitude => navMeshAgent.velocity.magnitude / navMeshAgent.speed;
 
         private bool hasReachedDestination; //This field only runs on server.
+
+        public bool IsMoving => isMoving.Value;
 
 
         public virtual void Setup(UnitController context)
@@ -46,6 +49,7 @@ namespace TRPG.Unit
             if (!hasReachedDestination && HasReachedDestination())
             {
                 hasReachedDestination = true;
+                isMoving.Value = false;
                 OnMoveFinishedServer?.Invoke();
                 FinishMoveCallback();
             }
@@ -68,6 +72,7 @@ namespace TRPG.Unit
         {
             navMeshAgent.SetDestination(destination);
             OnMoveStartedServer?.Invoke();
+            isMoving.Value = true;
             StartMoveCallback();
         }
 

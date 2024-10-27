@@ -105,6 +105,8 @@ namespace TRPG.Unit
         {
             if (!context.IsSelected) return;
 
+            if (!context.HasEnoughPoint || context.Motor.IsMoving) return;
+
             Ability queryAbility = abilityList.FirstOrDefault(a => a.Type == type);
             currentAbility.Value = type;
             Debug.Log($"{gameObject.name}.SelectAbility={type}");

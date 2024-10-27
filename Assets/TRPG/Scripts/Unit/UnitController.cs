@@ -1,4 +1,5 @@
 using Cinemachine;
+using DevOpsGuy.GUI;
 using FishNet.Object;
 using FishNet.Object.Synchronizing;
 using System;
@@ -21,6 +22,8 @@ namespace TRPG.Unit
         [SerializeField] private CinemachineVirtualCamera tpCamera;
 
         private readonly SyncVar<bool> isSelected = new SyncVar<bool>();
+
+        private HUD hud;
 
         public bool IsSelected => isSelected.Value;
 
@@ -66,6 +69,7 @@ namespace TRPG.Unit
             base.OnStartClient();
             if (IsOwner)
             {
+                hud = UIManager.GetUI<HUD>();
                 tpCamera = GetComponentInChildren<CinemachineVirtualCamera>();
                 tpCamera.enabled = false;
             }
@@ -126,6 +130,7 @@ namespace TRPG.Unit
             {
                 GridManager.Singleton.DisableAllCells(); 
                 EnableTPCamera();
+                hud.HideUIAbilities();
             }
         }
 
@@ -135,6 +140,7 @@ namespace TRPG.Unit
             if (isOwner)
             {
                 DisableTPCamera();
+                hud.ShowUIAbilities();
                 if (HasEnoughPoint)
                     EnableCellsAroundUnit();
             }

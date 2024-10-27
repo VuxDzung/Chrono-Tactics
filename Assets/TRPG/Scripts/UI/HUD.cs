@@ -59,6 +59,16 @@ namespace TRPG
             uiAbilityList.Add(uiUnitAbility);
         }
 
+        public void HideUIAbilities()
+        {
+            uiParent.gameObject.SetActive(false);
+        }
+
+        public void ShowUIAbilities()
+        {
+            uiParent.gameObject.SetActive(true);
+        }
+
         public void ClearUIAbilities()
         {
             uiAbilityList.ForEach(ui => Destroy(ui.gameObject));
