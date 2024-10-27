@@ -27,6 +27,7 @@ namespace TRPG.Unit
                 Debug.Log("AbilityFire.OnSelectCallback");
                 UIManager.ShowUI<AimHUD>();
                 context.EnableTPCamera();
+                GridManager.Singleton.DisableAllCells();
             }
         }
 
@@ -37,6 +38,7 @@ namespace TRPG.Unit
             {
                 UIManager.HideUI<AimHUD>();
                 context.DisableTPCamera();
+                context.EnableCellsAroundUnit();
             }
         }
 

@@ -47,8 +47,8 @@ namespace TRPG
         {
             ClearUIAbilities();
             UIUnitAbility uiUnitAbility = Instantiate(uiAbility, uiParent);
-            uiAbility.Setup(type, OnSelectAbility);
-            uiAbility.Activate();
+            uiUnitAbility.Setup(type, OnSelectAbility);
+            uiUnitAbility.Activate();
             uiAbilityList.Add(uiUnitAbility);
         }
 

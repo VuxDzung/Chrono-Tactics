@@ -72,9 +72,10 @@ public class GridManager : M_Singleton<GridManager>
         return surroundingCells;
     }
 
-    public void EnableSurroundingCells(Vector2Int centerPos, int radius)
+    public void EnableSurroundingCells(Vector3 centerVector3, int radius)
     {
-        List<VisualGrid> gridCells = GetSurroundingCells(centerPos, radius);
+        Vector2Int center = MathUtil.RoundVector2(new Vector2(centerVector3.x, centerVector3.z), 1);
+        List<VisualGrid> gridCells = GetSurroundingCells(center, radius);
         gridCells.ForEach(cell => cell.Select());
     }
 

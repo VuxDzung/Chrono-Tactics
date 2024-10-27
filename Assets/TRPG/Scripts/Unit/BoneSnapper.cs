@@ -4,7 +4,10 @@ namespace TRPG.Unit
 {
     public class BoneSnapper : MonoBehaviour
     {
+        [SerializeField] private Handler handler;
         [SerializeField] private HumanBodyBones bone;
+
+        public Handler Handler => handler;
 
         public virtual void SnapParent(Animator animator)
         {

@@ -1,0 +1,45 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7bfe2a7d750c8254cbb96511c3b7eabd, type: 3}
+  m_Name: WeaponConfigSO
+  m_EditorClassIdentifier: 
+  dataList:
+  - id: WE_0001_000001
+    weaponName: Sword
+    weaponType: 1
+    baseDamage: 70
+    baseAccuracy: 100
+    range: 2
+    weaponPrefab: {fileID: -2394821947295633531, guid: 19df556a25b21e1498267a8f07f1643b,
+      type: 3}
+    activeHandler: 0
+    inactiveHandler: 2
+  - id: WE_0002_000001
+    weaponName: Pistol
+    weaponType: 2
+    baseDamage: 20
+    baseAccuracy: 60
+    range: 30
+    weaponPrefab: {fileID: -2394821947295633531, guid: ab1da57eac2a2094d8b0808820cf972a,
+      type: 3}
+    activeHandler: 0
+    inactiveHandler: 3
+  - id: WE_0003_000001
+    weaponName: Rifle
+    weaponType: 3
+    baseDamage: 30
+    baseAccuracy: 75
+    range: 100
+    weaponPrefab: {fileID: -2394821947295633531, guid: 0afba3ac40478eb49801758fd8a581a2,
+      type: 3}
+    activeHandler: 0
+    inactiveHandler: 2

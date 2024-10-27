@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace TRPG.Unit
@@ -8,6 +9,12 @@ namespace TRPG.Unit
     {
         [SerializeField] private Animator animator;
         [SerializeField] private List<BoneSnapper> snapperList;
+
+
+        public BoneSnapper GetBoneRefByHandler(Handler handler)
+        {
+            return snapperList.FirstOrDefault(bone => bone.Handler == handler);
+        }
 
         private void Awake()
         {

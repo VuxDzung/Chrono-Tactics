@@ -25,11 +25,16 @@ namespace TRPG.Unit
         public bool IsSelected => isSelected.Value;
 
         public UnitData Data => data;
+
+        public BoneSnapController BoneController { get; private set; }  
         public UnitMotor Motor { get; private set; }
         public UnitAnimationController AnimationController { get; private set; }
         public AbilitiesController AbilityController { get; private set; }
         public NetworkPlayer UnitOwner { get; private set; }
         public UnitCombatBrain CombatBrain { get; private set; }
+        public WeaponManager WeaponManager { get; private set; }
+
+        public bool HasEnoughPoint => UnitOwner.HasEnoughPoint(this);
 
         public override void OnStartNetwork()
         {
@@ -38,11 +43,14 @@ namespace TRPG.Unit
             AnimationController = GetComponent<UnitAnimationController>();
             AbilityController = GetComponent<AbilitiesController>();
             CombatBrain = GetComponent<UnitCombatBrain>();
+            BoneController = GetComponent<BoneSnapController>();
+            WeaponManager = GetComponent<WeaponManager>();
 
             Motor.Setup(this);
             AnimationController.Setup(this);
             AbilityController.Setup(this);
             CombatBrain.Setup(this);
+            WeaponManager.Setup(this);
 
             OnSelectCallback += SelectOwnerCallback;
             OnDeselectCallback += DeselectOwnerCallback;
@@ -95,7 +103,7 @@ namespace TRPG.Unit
             if (IsOwner)
             {
                 selectObj.SetActive(true);
-                GridManager.Singleton.EnableSurroundingCells(MathUtil.RoundVector2(new Vector2(transform.position.x, transform.position.z), 1), data.fov);
+                GridManager.Singleton.EnableSurroundingCells(transform.position, data.fov);
             }
         }
 
@@ -127,7 +135,7 @@ namespace TRPG.Unit
             {
                 DisableTPCamera();
                 if (UnitOwner.HasEnoughPoint(this))
-                    GridManager.Singleton.EnableSurroundingCells(MathUtil.RoundVector2(new Vector2(transform.position.x, transform.position.z), 1), data.fov);
+                    EnableCellsAroundUnit();
             }
         }
 
@@ -158,6 +166,15 @@ namespace TRPG.Unit
         {
             tpCamera.enabled = false;
             SceneCamera.Singleton.ResetCameraTransform();
+        }
+
+        #endregion
+
+        #region Unit Cells
+
+        public virtual void EnableCellsAroundUnit()
+        {
+            GridManager.Singleton.EnableSurroundingCells(transform.position, data.fov);
         }
 
         #endregion
