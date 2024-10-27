@@ -5,6 +5,7 @@ using UnityEngine;
 using TRPG.Unit;
 using FishNet.Object;
 using DevOpsGuy.GUI;
+using Unity.Burst.CompilerServices;
 
 namespace TRPG
 {
@@ -93,14 +94,20 @@ namespace TRPG
                 Physics.Raycast(GetRay(), out RaycastHit hit, groundLayer);
                 if (hit.transform && selectedUnit.Value != null)
                 {
-                    if (!HasEnoughPoint(selectedUnit.Value)) return;
-
-                    Vector3 pos = MathUtil.RoundVector3(hit.point, 1);
-                    selectedUnit.Value.Motor.MoveTo(pos);
-                    SpendActionPoint(selectedUnit.Value, ActionPointCost.Half);
+                    OnMovePlayerUnit(hit.point);
                 }
             }
         }
+
+        [ServerRpc]
+        protected virtual void OnMovePlayerUnit(Vector3 destination)
+        {
+            if (!HasEnoughPoint(selectedUnit.Value)) return;
+
+            selectedUnit.Value.TryMove(destination);
+            SpendActionPoint(selectedUnit.Value, ActionPointCost.Half);
+        }
+
         /// <summary>
         /// When select an unit, the unit visual select shall show up along with the unit's UI.
         /// </summary>

@@ -14,6 +14,7 @@ namespace TRPG.Unit
         public Action OnSelectCallback;
         public Action OnDeselectCallback;
 
+
         [SerializeField] private UnitData data;
         [SerializeField] private GameObject selectObj;
 
@@ -42,6 +43,9 @@ namespace TRPG.Unit
             OnDeselectCallback += OnDeselectOwner;
 
             UnitOwner = TRPGGameManager.Instance.GetPlayer(Owner);
+
+            Motor.OnMoveStartedCallback += StartMove;
+            Motor.OnMoveFinishedCallback += OnReachedDestination;
         }
 
         [ServerRpc]
@@ -87,5 +91,36 @@ namespace TRPG.Unit
                 GridManager.Singleton.DisableAllCells();
             }
         }
+
+        #region Locomotion 
+
+        private void StartMove(bool isOwner)
+        {
+            if (isOwner)
+                GridManager.Singleton.DisableAllCells();
+        }
+
+        private void OnReachedDestination(bool isOwner)
+        {
+            if (isOwner)
+            {
+                if (UnitOwner.HasEnoughPoint(this))
+                    GridManager.Singleton.EnableSurroundingCells(MathUtil.RoundVector2(new Vector2(transform.position.x, transform.position.z), 1), data.fov);
+            }
+        }
+
+        [Server]
+        public bool TryMove(Vector3 destination)
+        {
+            Vector3Int roundedDestination = MathUtil.RoundVector3(destination, 1);
+            Vector3Int roundedPos = MathUtil.RoundVector3(transform.position, 1);
+            if (Vector3Int.Distance(roundedPos, roundedDestination) <= data.fov)
+            {
+                Motor.MoveTo(roundedDestination);
+                return true;
+            }
+            return false;
+        }
+        #endregion
     }
 }
