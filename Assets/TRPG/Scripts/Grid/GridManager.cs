@@ -9,6 +9,8 @@ public class GridManager : M_Singleton<GridManager>
     [SerializeField] private VisualGrid gridPrefab;
     [SerializeField] private Transform parent;
     [SerializeField] private Vector2Int gridArea = new Vector2Int(100, 100);
+    [SerializeField] private float colliderHalfCellSize = 0.45f;
+    [SerializeField] private LayerMask obstacleLayer;
 
     private VisualGrid[,] visualGrid2dArray;
     private Vector2Int configGridArea;
@@ -41,7 +43,7 @@ public class GridManager : M_Singleton<GridManager>
         return visualGrid2dArray[x, y]; 
     }
 
-    public List<VisualGrid> GetSurroundingCells(Vector2Int centerPos, int radius)
+    public List<VisualGrid> GetSurroundingCells(Vector2Int centerPos, int radius, bool ignoreObstacles)
     {
         List<VisualGrid> surroundingCells = new List<VisualGrid>();
 
@@ -61,7 +63,10 @@ public class GridManager : M_Singleton<GridManager>
                     // Check if within grid bounds
                     if (neighborX >= 0 && neighborX < configGridArea.x && neighborY >= 0 && neighborY < configGridArea.y)
                     {
-                        // Add the visual cell at this position
+                        //Don't add the cell if it collides with an obstacle [Dung].
+                        if (!ignoreObstacles && !IsValidCell(new Vector3(neighborX, 0, neighborY)))
+                            continue;
+
                         surroundingCells.Add(visualGrid2dArray[neighborX, neighborY]);
                     }
                 }
@@ -74,7 +79,7 @@ public class GridManager : M_Singleton<GridManager>
     public void EnableSurroundingCells(Vector3 centerVector3, int radius)
     {
         Vector2Int center = MathUtil.RoundVector2(new Vector2(centerVector3.x, centerVector3.z), 1);
-        List<VisualGrid> gridCells = GetSurroundingCells(center, radius);
+        List<VisualGrid> gridCells = GetSurroundingCells(center, radius, false);
         gridCells.ForEach(cell => cell.Select());
     }
 
@@ -88,5 +93,12 @@ public class GridManager : M_Singleton<GridManager>
                     visualGrid2dArray[x, y].Deselect();
             }
         }
+    }
+
+    public bool IsValidCell(Vector3 position)
+    {
+        Collider[] obstacles = Physics.OverlapBox(position, new Vector3(colliderHalfCellSize, 0.5f, colliderHalfCellSize), Quaternion.identity, obstacleLayer.value);
+
+        return obstacles.Length == 0;
     }
 }
