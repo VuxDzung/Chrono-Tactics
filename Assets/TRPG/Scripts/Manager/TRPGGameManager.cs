@@ -18,7 +18,7 @@ namespace TRPG.Unit
         [SerializeField] private GameObject playerPrefab;
         [SerializeField] private bool addToDefaultScene = true;
 
-        private readonly SyncList<NetworkPlayer> nwPlayerList = new SyncList<NetworkPlayer>();
+        private readonly SyncList<NetworkPlayer> nwPlayerList = new SyncList<NetworkPlayer>(new SyncTypeSettings(WritePermission.ServerOnly, ReadPermission.Observers));
         private readonly SyncVar<int> currentPlayerIndex = new SyncVar<int>();
         private NetworkManager networkManager;
 
@@ -75,7 +75,13 @@ namespace TRPG.Unit
 
             networkManager.ServerManager.Spawn(nob, conn);
             nob.gameObject.name = string.Format(PLAYER_OBJ_NAME_FORMAT, nwPlayerList.Count);
-            nwPlayerList.Add(nob.GetComponent<NetworkPlayer>());
+
+            NetworkPlayer player = nob.GetComponent<NetworkPlayer>();
+
+            RegisterPlayer(player);
+
+            player.Initialized(SceneSpawnAreaManager.S.GetArea(), conn);
+            SceneSpawnAreaManager.S.IncreaseAreaIndex();
 
             //If there are no global scenes 
             if (addToDefaultScene)
@@ -93,9 +99,22 @@ namespace TRPG.Unit
             nwPlayerList[currentPlayerIndex.Value].StartOwnerTurn();
         }
 
+        public bool RegisterPlayer(NetworkPlayer player)
+        {
+            if (nwPlayerList.Contains(player))
+                return false;
+            nwPlayerList.Add(player);
+            return true;
+        }
+
+        public bool UnregisterPlayer(NetworkPlayer player)
+        {
+            return nwPlayerList.Remove(player);
+        }
+
         public NetworkPlayer GetPlayer(NetworkConnection owner)
         {
-            return nwPlayerList.FirstOrDefault(player => player.Owner.Equals(owner));
+            return nwPlayerList.FirstOrDefault(player => player.OwnerId.Equals(owner.ClientId));
         }
     }
 }

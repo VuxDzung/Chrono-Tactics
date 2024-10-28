@@ -13,7 +13,6 @@ public class GridManager : M_Singleton<GridManager>
     private VisualGrid[,] visualGrid2dArray;
     private Vector2Int configGridArea;
 
-
     protected override void Awake()
     {
         base.Awake();

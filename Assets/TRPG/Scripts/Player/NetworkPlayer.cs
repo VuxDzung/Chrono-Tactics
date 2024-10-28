@@ -6,6 +6,7 @@ using TRPG.Unit;
 using FishNet.Object;
 using DevOpsGuy.GUI;
 using Unity.Burst.CompilerServices;
+using FishNet.Connection;
 
 namespace TRPG
 {
@@ -24,7 +25,6 @@ namespace TRPG
         [SerializeField] private LayerMask unitLayer;
         [SerializeField] private LayerMask groundLayer;
         [SerializeField] private UnitController testUnitPrefab;
-        [SerializeField] private Transform testPosition;
 
         private const int DEFAULT_ACTION_POINT = 2;
 
@@ -40,7 +40,6 @@ namespace TRPG
             base.OnStartClient();
             if (IsOwner)
             {
-                OnInitUnits();
                 hud = UIManager.GetUI<HUD>();
 
                 HUD.OnNextUnit += ChangeNextUnit;
@@ -48,13 +47,18 @@ namespace TRPG
             }
         }
 
-        [ServerRpc]
-        protected virtual void OnInitUnits()
+        [Server]
+        public virtual void Initialized(SpawnArea spawnArea, NetworkConnection owner)
         {
-            UnitController unit = Instantiate(testUnitPrefab, testPosition.position, Quaternion.identity);
+            UnitController unit = Instantiate(testUnitPrefab, spawnArea.GetPoint().transform.position, Quaternion.identity);
             unit.gameObject.name = string.Format(UNIT_NAME_FORMAT, OwnerId, unitDictionary.Count);
-            ServerManager.Spawn(unit.gameObject, Owner);
+            ServerManager.Spawn(unit.gameObject, owner);
+
             RegisterUnit(unit);
+
+            spawnArea.IncreasePointIndex();
+
+            Debug.Log($"{gameObject.name}.Owner={owner.ClientId}");
         }
 
         [Server]
