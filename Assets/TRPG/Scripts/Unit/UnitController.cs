@@ -140,6 +140,7 @@ namespace TRPG.Unit
             if (isOwner)
             {
                 DisableTPCamera();
+                SceneCamera.Singleton.MoveTo(transform.position);
                 hud.ShowUIAbilities();
                 if (HasEnoughPoint)
                     EnableCellsAroundUnit();
