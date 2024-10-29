@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: 8866ea76f2ed19c4695ecbd58720c2e7
+guid: 62e6a7ec09cd0324f823ce22fea86d6f
 ModelImporter:
   serializedVersion: 22200
   internalIDToNameTable: []
@@ -33,11 +33,11 @@ ModelImporter:
     extraUserProperties: []
     clipAnimations:
     - serializedVersion: 16
-      name: Crouch_Walk_Forward
+      name: TakingCover_R
       takeName: mixamo.com
       internalID: -203655887218126122
       firstFrame: 0
-      lastFrame: 35
+      lastFrame: 68
       wrapMode: 0
       orientationOffsetY: 0
       level: 0

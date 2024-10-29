@@ -7,6 +7,7 @@ using FishNet.Object;
 using DevOpsGuy.GUI;
 using Unity.Burst.CompilerServices;
 using FishNet.Connection;
+using System.Linq;
 
 namespace TRPG
 {
@@ -19,7 +20,6 @@ namespace TRPG
     public class NetworkPlayer : CoreNetworkBehaviour
     {
         private const string UNIT_NAME_FORMAT = "Unit [Owner:{0} | Index:[{1}]]";
-
 
         [SerializeField] private CommandInputManager commandInput;
         [SerializeField] private LayerMask unitLayer;
@@ -35,6 +35,8 @@ namespace TRPG
 
         private HUD hud;
 
+        public bool IsOwnerTurn => isOwnerTurn.Value;
+
         public override void OnStartClient()
         {
             base.OnStartClient();
@@ -44,13 +46,35 @@ namespace TRPG
 
                 HUD.OnNextUnit += ChangeNextUnit;
                 HUD.OnPrevUnit += ChangePrevUnit;
+                HUD.OnEndTurn += EndTurn;
+
+                switch (OwnerId)
+                {
+                    case 0:
+                        SceneCamera.Singleton.MoveTo(SceneContextManager.S.Player1CamPos.position, Quaternion.identity);
+                        break;
+                    case 1:
+                        SceneCamera.Singleton.MoveTo(SceneContextManager.S.Player2CamPos.position, SceneCamera.Singleton.GetRotationHandler(180));
+                        break;
+                }
+            }
+        }
+
+        public override void OnClientUpdate()
+        {
+            base.OnClientUpdate();
+            if (IsOwner)
+            {
+                SelectUnitInput();
+                MovePlayerUnitInput();
+                RotateCameraInput();
             }
         }
 
         [Server]
         public virtual void Initialized(SpawnArea spawnArea, NetworkConnection owner)
         {
-            UnitController unit = Instantiate(testUnitPrefab, spawnArea.GetPoint().transform.position, Quaternion.identity);
+            UnitController unit = Instantiate(testUnitPrefab, spawnArea.GetPoint().transform.position, spawnArea.GetPoint().rotation);
             unit.gameObject.name = string.Format(UNIT_NAME_FORMAT, OwnerId, unitDictionary.Count);
             ServerManager.Spawn(unit.gameObject, owner);
 
@@ -76,16 +100,6 @@ namespace TRPG
             return unitDictionary.Remove(unit);
         }
 
-        public override void OnClientUpdate()
-        {
-            base.OnClientUpdate();
-            if (IsOwner)
-            {
-                SelectUnitInput();
-                MovePlayerUnitInput();
-            }
-        }
-
         protected virtual void SelectUnitInput()
         {
             if (commandInput.LeftMouseDown)
@@ -98,6 +112,12 @@ namespace TRPG
             }
         }
 
+        [ServerRpc]
+        protected virtual void EndTurn()
+        {
+            TRPGGameManager.Instance.ChangeNextPlayerTurn();
+        }
+
         protected virtual void MovePlayerUnitInput()
         {
             if (commandInput.RightMouseDown)
@@ -107,6 +127,19 @@ namespace TRPG
                 {
                     OnMovePlayerUnit(hit.point);
                 }
+            }
+        }
+
+        protected virtual void RotateCameraInput()
+        {
+            if (commandInput.E)
+            {
+                SceneCamera.Singleton.Rotate(90, true);
+            }
+
+            if (commandInput.Q)
+            {
+                SceneCamera.Singleton.Rotate(90, false);
             }
         }
 
@@ -163,16 +196,11 @@ namespace TRPG
                 {
                     if (selectedUnit.IsSelected)
                     {
-                        selectedUnit.Deselect();
                         AssignSelectedUnit(null);
-                        hud.ClearUIAbilities();
                     }
                     else
                     {
-                        selectedUnit.Select();
                         AssignSelectedUnit(selectedUnit);
-                        selectedUnit.AbilityController.LoadAbilityToUI(hud);
-                        selectedUnit.WeaponManager.LoadWeaponUI();
                     }
                 }
             }
@@ -185,27 +213,36 @@ namespace TRPG
         [ServerRpc]
         protected virtual void AssignSelectedUnit(UnitController unit)
         {
+            if (selectedUnit.Value != null)
+                selectedUnit.Value.Deselect();
+
             selectedUnit.Value = unit;
+
+            if (selectedUnit.Value != null)
+                selectedUnit.Value.Select();
         }
 
         [Server]
-        public virtual void ResetUnitActionPoint()
+        private void ResetUnitActionPoint()
         {
-            foreach (var item in unitDictionary)
-            {
-                unitDictionary[item.Key] = 2;
-            }
+            unitDictionary.Keys.ToList().ForEach(key => unitDictionary[key] = 2);
+        }
+
+        [Server]
+        private void ResetUnitAbility()
+        {
+            unitDictionary.Keys.ToList().ForEach(key => key.AbilityController.ResetDefaultAbility());
         }
 
         [Server]
         public virtual void StartOwnerTurn()
         {
-            commandInput.LockInput.Value = false;
+            Debug.Log($"{gameObject.name}.StartTurn");
             isOwnerTurn.Value = true;
+            commandInput.LockInput.Value = false;
             ResetUnitActionPoint();
-
-            foreach (var item in unitDictionary)
-                item.Key.AbilityController.ResetDefaultAbility();
+            ResetUnitAbility();
+            StartTurnCallback();
         }
 
         [Server]
@@ -213,11 +250,30 @@ namespace TRPG
         {
             isOwnerTurn.Value = false;
             commandInput.LockInput.Value = true;
+            unitDictionary.Keys.ToList().ForEach(key => key.Deselect());
+            OnStopTurnCallback();
+        }
+
+        public virtual void StartTurnCallback()
+        {
+            if (IsOwner)
+            {
+                
+            }
+        }
+
+        [ObserversRpc]
+        public virtual void OnStopTurnCallback()
+        {
+            if (IsOwner)
+            {
+                
+            }
         }
 
         #region Action Points
 
-        [ServerRpc]
+        [Server]
         public void SpendActionPoint(UnitController unit, ActionPointCost cost)
         {
             if (unitDictionary.ContainsKey(unit))

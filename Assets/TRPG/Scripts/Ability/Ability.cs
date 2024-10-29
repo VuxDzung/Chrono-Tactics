@@ -44,12 +44,6 @@ namespace TRPG
         public AbilityStep[] Steps => steps;
 
         public Sprite Thumbnail => thumbnail;
-        protected UnitController context;
-
-        public virtual void Setup(UnitController context)
-        {
-            this.context = context;
-        }
 
         // Unified type check for all actions
         protected bool IsAbilityType(AbilityType targetType)
@@ -58,49 +52,49 @@ namespace TRPG
         }
 
         #region Server-Side
-        public virtual void OnSelectServer(AbilityType type)
+        public virtual void OnSelectServer(AbilityType type, UnitController context)
         {
             if (!IsAbilityType(type)) return;
         }
-        public virtual void OnActivateServer(AbilityType type)
+        public virtual void OnActivateServer(AbilityType type, UnitController context)
         {
             if (!IsAbilityType(type)) return;
         }
-        public virtual void OnDeactivateServer(AbilityType type)
+        public virtual void OnDeactivateServer(AbilityType type, UnitController context)
         {
             if (!IsAbilityType(type)) return;
         }
         #endregion
 
         #region Callback
-        public virtual void OnSelectCallback(AbilityType type, bool isOwner)
+        public virtual void OnSelectCallback(AbilityType type, UnitController context, bool isOwner)
         {
             if (!IsAbilityType(type)) return;
         }
-        public virtual void OnDeselectCallback(AbilityType type, bool isOwner)
+        public virtual void OnDeselectCallback(AbilityType type, UnitController context, bool isOwner)
         {
             if (!IsAbilityType(type)) return;
         }
-        public virtual void OnActivateCallback(AbilityType type, bool isOwner)
+        public virtual void OnActivateCallback(AbilityType type, UnitController context, bool isOwner)
         {
             if (!IsAbilityType(type)) return;
         }
         #endregion
 
         #region Timer
-        public virtual void OnDelayStarted(AbilityType type, bool asServer)
+        public virtual void OnDelayStarted(AbilityType type, UnitController context, bool asServer)
         {
             if (!IsAbilityType(type)) return;
         }
-        public virtual void OnDelayFinished(AbilityType type, bool asServer)
+        public virtual void OnDelayFinished(AbilityType type, UnitController context, bool asServer)
         {
             if (!IsAbilityType(type)) return;
         }
-        public virtual void OnDurationStart(AbilityType type, bool asServer)
+        public virtual void OnDurationStart(AbilityType type, UnitController context, bool asServer)
         {
             if (!IsAbilityType(type)) return;
         }
-        public virtual void OnDurationFinished(AbilityType type, bool asServer)
+        public virtual void OnDurationFinished(AbilityType type, UnitController context, bool asServer)
         {
             if (!IsAbilityType(type)) return;
         }

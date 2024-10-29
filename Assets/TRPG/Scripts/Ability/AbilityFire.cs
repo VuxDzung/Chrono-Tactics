@@ -10,9 +10,11 @@ namespace TRPG.Unit
     public class AbilityFire : Ability
     {
         #region Server-Side
-        public override void OnSelectServer(AbilityType type)
+        public override void OnSelectServer(AbilityType type, UnitController context)
         {
-            base.OnSelectServer(type);
+            base.OnSelectServer(type, context);
+            Debug.Log($"{context.UnitOwner.Value.gameObject.name}");
+            Debug.Log($"{context.gameObject.name}.OnSelectServer");
             context.CombatBrain.Scanning();
         }
 
@@ -20,21 +22,20 @@ namespace TRPG.Unit
 
         #region Callback
 
-        public override void OnSelectCallback(AbilityType type, bool isOwner)
+        public override void OnSelectCallback(AbilityType type, UnitController context, bool isOwner)
         {
-            base.OnSelectCallback(type, isOwner);
+            base.OnSelectCallback(type, context, isOwner);
             if (isOwner)
             {
-                Debug.Log("AbilityFire.OnSelectCallback");
                 UIManager.ShowUI<AimHUD>();
                 context.EnableTPCamera();
                 GridManager.Singleton.DisableAllCells();
             }
         }
 
-        public override void OnDeselectCallback(AbilityType type, bool isOwner)
+        public override void OnDeselectCallback(AbilityType type, UnitController context, bool isOwner)
         {
-            base.OnDeselectCallback(type, isOwner);
+            base.OnDeselectCallback(type, context, isOwner);
             if (isOwner)
             {
                 UIManager.HideUI<AimHUD>();
@@ -43,24 +44,24 @@ namespace TRPG.Unit
             }
         }
 
-        public override void OnActivateCallback(AbilityType type, bool isOwner)
+        public override void OnActivateCallback(AbilityType type, UnitController context, bool isOwner)
         {
-            base.OnActivateCallback(type, isOwner);
+            base.OnActivateCallback(type, context, isOwner);
             if (isOwner)
             {
                 UIManager.HideUI<AimHUD>();
             }  
         }
 
-        public override void OnActivateServer(AbilityType type)
+        public override void OnActivateServer(AbilityType type, UnitController context)
         {
-            base.OnActivateServer(type);
+            base.OnActivateServer(type, context);
             context.CombatBrain.Fire();
         }
 
-        public override void OnDurationFinished(AbilityType type, bool asServer)
+        public override void OnDurationFinished(AbilityType type, UnitController context, bool asServer)
         {
-            base.OnDurationFinished(type, asServer);
+            base.OnDurationFinished(type, context, asServer);
             if (asServer)
             {
                 context.AbilityController.ResetDefaultAbility();

@@ -1,4 +1,7 @@
+using FishNet;
+using FishNet.Component.Transforming;
 using FishNet.Object;
+using FishNet.Object.Synchronizing;
 using UnityEngine;
 
 namespace TRPG
@@ -6,24 +9,37 @@ namespace TRPG
     [RequireComponent(typeof(AudioSource))]
     public class BaseWeapon : CoreNetworkBehaviour
     {
+        private readonly SyncVar<Transform> netParent = new SyncVar<Transform>();
         [SerializeField] private AudioSource m_AudioSource;
         [SerializeField] private AudioClip m_Clip;
 
         [Server]
         public void SetParent(Transform parent)
         {
-            transform.SetParent(parent);
+            netParent.Value = parent;// SetParent(parent, false);
+            transform.parent = netParent.Value;
             transform.localPosition = Vector3.zero;
             transform.localRotation = Quaternion.identity;
-            SetParentCallback(transform.parent);
+            SetParentCallback(netParent.Value);
         }
 
         [ObserversRpc]
         protected virtual void SetParentCallback(Transform serverParent)
         {
-            transform.SetParent(serverParent);
+            transform.parent = serverParent;
             transform.localPosition = Vector3.zero;
             transform.localRotation = Quaternion.identity;
+        }
+
+        public override void OnClientUpdate()
+        {
+            base.OnClientUpdate();
+            if (transform.parent != netParent.Value)
+            {
+                transform.parent = netParent.Value;
+                transform.localPosition = Vector3.zero;
+                transform.localRotation = Quaternion.identity;
+            }    
         }
 
         /// <summary>

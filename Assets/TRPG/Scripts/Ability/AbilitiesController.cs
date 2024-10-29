@@ -10,18 +10,18 @@ namespace TRPG.Unit
 {
     public class AbilitiesController : CoreNetworkBehaviour
     {
-        public Action<AbilityType> OnSelectAbilityServer;
-        public Action<AbilityType> OnDeselectAbilityServer;
-        public Action<AbilityType> OnActivateAbilityServer;
+        public Action<AbilityType, UnitController> OnSelectAbilityServer;
+        public Action<AbilityType, UnitController> OnDeselectAbilityServer;
+        public Action<AbilityType, UnitController> OnActivateAbilityServer;
 
-        public Action<AbilityType, bool> OnSelectAbilityClient;
-        public Action<AbilityType, bool> OnDeselectAbilityClient;
-        public Action<AbilityType, bool> OnActivateAbilityClient;
+        public Action<AbilityType, UnitController, bool> OnSelectAbilityClient;
+        public Action<AbilityType, UnitController, bool> OnDeselectAbilityClient;
+        public Action<AbilityType, UnitController, bool> OnActivateAbilityClient;
 
-        public Action<AbilityType, bool> OnDelayStarted;
-        public Action<AbilityType, bool> OnDelayFinished;
-        public Action<AbilityType, bool> OnDurationStarted;
-        public Action<AbilityType, bool> OnDurationFinished;
+        public Action<AbilityType, UnitController, bool> OnDelayStarted;
+        public Action<AbilityType, UnitController, bool> OnDelayFinished;
+        public Action<AbilityType, UnitController, bool> OnDurationStarted;
+        public Action<AbilityType, UnitController, bool> OnDurationFinished;
 
 
         [SerializeField] private List<Ability> abilityList = new List<Ability>();
@@ -44,9 +44,6 @@ namespace TRPG.Unit
         {
             delayTimer.OnChange += OnDelayChange;
             durationTimer.OnChange += OnDurationChange;
-
-            AimHUD.OnFire += ConfirmAbility;
-            AimHUD.OnCancel += CancelAbility;
         }
 
         private void OnDestroy()
@@ -58,12 +55,21 @@ namespace TRPG.Unit
             AimHUD.OnCancel -= CancelAbility;
         }
 
+        public override void OnStartClient()
+        {
+            base.OnStartClient();
+            if (IsOwner)
+            {
+                AimHUD.OnFire += ConfirmAbility;
+                AimHUD.OnCancel += CancelAbility;
+            }
+        }
+
         public virtual void Setup(UnitController context)
         {
             this.context = context;
-            abilityList.ForEach(a => {
-                a.Setup(context);
 
+            abilityList.ForEach(a => {
                 OnSelectAbilityServer += a.OnSelectServer;
                 OnActivateAbilityServer += a.OnActivateServer;
                 OnDeselectAbilityServer += a.OnDeactivateServer;
@@ -95,7 +101,7 @@ namespace TRPG.Unit
         [ServerRpc]
         public void CancelAbility()
         {
-            OnDeselectAbilityServer?.Invoke(currentAbility.Value);
+            OnDeselectAbilityServer?.Invoke(currentAbility.Value, context);
             ResetDefaultAbility();
             OnDeselectAbilityCallback();
         }
@@ -103,10 +109,12 @@ namespace TRPG.Unit
         [ServerRpc]
         public virtual void SelectAbility(AbilityType type)
         {
+            if (!context.UnitOwner.Value.IsOwnerTurn) return;
+
             if (!context.IsSelected) return;
 
             if (!context.HasEnoughPoint || context.Motor.IsMoving) return;
-
+            Debug.Log($"{gameObject.name}:{type.ToString()}");
             Ability queryAbility = abilityList.FirstOrDefault(a => a.Type == type);
             currentAbility.Value = type;
             Debug.Log($"{gameObject.name}.SelectAbility={type}");
@@ -124,6 +132,9 @@ namespace TRPG.Unit
         [Server]
         private void ExecuteCurrentStep()
         {
+            if (!context.UnitOwner.Value.IsOwnerTurn) return;
+            Debug.Log($"UnitOwner: [{context.UnitOwner.Value.gameObject.name}]");
+
             Ability queryAbility = abilityList.FirstOrDefault(a => a.Type == currentAbility.Value);
 
             if (queryAbility == null || currentStepIndex.Value >= queryAbility.Steps.Length)
@@ -132,7 +143,7 @@ namespace TRPG.Unit
                 return;
             }
 
-            if (!context.UnitOwner.HasEnoughPoint(context))
+            if (!context.UnitOwner.Value.HasEnoughPoint(context))
             {
                 Debug.Log("<color=red>Invalid:</color>Not enough action points!");
                 return;
@@ -144,9 +155,7 @@ namespace TRPG.Unit
             {
                 case AbilityStep.Select:
                     Debug.Log("ExecuteCurrentStep:Select");
-                    //Activate the target indicator.
-                    //context.ActivateTargetIndicator();
-                    OnSelectAbilityServer?.Invoke(currentAbility.Value);
+                    OnSelectAbilityServer?.Invoke(currentAbility.Value, context);
                     OnSelectAbilityCallback();
                     break;
                 case AbilityStep.Deploy:
@@ -169,9 +178,9 @@ namespace TRPG.Unit
         public virtual void TryStartAbility(Ability ability)
         {
             Debug.Log($"{gameObject.name}.TryStartAbility.STATUS=STARTED");
-            OnActivateAbilityServer?.Invoke(currentAbility.Value);
+            OnActivateAbilityServer?.Invoke(currentAbility.Value, context);
             OnActivateAbilityCallback();
-            context.UnitOwner.SpendActionPoint(context, ability.Cost);
+            context.UnitOwner.Value.SpendActionPoint(context, ability.Cost);
 
             if (ability.TimerConfig.useTimer)
             {
@@ -191,19 +200,19 @@ namespace TRPG.Unit
         [ObserversRpc]
         private void OnSelectAbilityCallback()
         {
-            OnSelectAbilityClient?.Invoke(currentAbility.Value, IsOwner);
+            OnSelectAbilityClient?.Invoke(currentAbility.Value, context, IsOwner);
         }
 
         [ObserversRpc]
         private void OnDeselectAbilityCallback()
         {
-            OnDeselectAbilityClient?.Invoke(currentAbility.Value, IsOwner);
+            OnDeselectAbilityClient?.Invoke(currentAbility.Value, context, IsOwner);
         }
 
         [ObserversRpc]
         private void OnActivateAbilityCallback()
         {
-            OnActivateAbilityClient?.Invoke(currentAbility.Value, IsOwner);
+            OnActivateAbilityClient?.Invoke(currentAbility.Value, context, IsOwner);
         }
         #endregion
 
@@ -226,24 +235,24 @@ namespace TRPG.Unit
 
         public virtual void OnDelayTimerStarted(bool asServer)
         {
-            OnDelayStarted?.Invoke(currentAbility.Value, asServer);
+            OnDelayStarted?.Invoke(currentAbility.Value, context, asServer);
         }
 
         public virtual void OnDelayTimerFinished(bool asServer)
         {
             if (asServer)
                 durationTimer.StartTimer(_duration);
-            OnDelayFinished?.Invoke(currentAbility.Value, asServer);
+            OnDelayFinished?.Invoke(currentAbility.Value, context, asServer);
         }
 
         public virtual void OnDurationTimerStarted(bool asServer)
         {
-            OnDurationStarted?.Invoke(currentAbility.Value, asServer);
+            OnDurationStarted?.Invoke(currentAbility.Value, context, asServer);
         }
 
         public virtual void OnDurationTimerFinished(bool asServer)
         {
-            OnDurationFinished?.Invoke(currentAbility.Value, asServer);
+            OnDurationFinished?.Invoke(currentAbility.Value, context, asServer);
             if (asServer)
                 //After finish the skill, reset all the flag variables back to default.
                 currentAbility.Value = AbilityType.None;

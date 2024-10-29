@@ -7,6 +7,8 @@ public class CommandInputManager : CoreNetworkBehaviour
 {
     [SerializeField] private KeyCode leftMouseInput = KeyCode.Mouse0;
     [SerializeField] private KeyCode rightMouseInput = KeyCode.Mouse1;
+    [SerializeField] private KeyCode qInput = KeyCode.Q;
+    [SerializeField] private KeyCode eInput = KeyCode.E;
     [SerializeField] private KeyCode tabInput = KeyCode.Tab;
     [SerializeField] private string horizontalAxis = "Horizontal";
     [SerializeField] private string verticalAxis = "Vertical";
@@ -16,6 +18,8 @@ public class CommandInputManager : CoreNetworkBehaviour
     public bool LeftMouseDown => !LockInput.Value && Input.GetKeyDown(leftMouseInput);
     public bool RightMouseDown => !LockInput.Value && Input.GetKeyDown(rightMouseInput);
     public bool Tab => !LockInput.Value && Input.GetKeyDown(tabInput);
+    public bool E => !LockInput.Value && Input.GetKeyDown(eInput);
+    public bool Q => !LockInput.Value && Input.GetKeyDown(qInput);
 
     public Vector2 MoveCameraInput { get; private set; }
 

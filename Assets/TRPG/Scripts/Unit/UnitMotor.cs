@@ -10,6 +10,7 @@ namespace TRPG.Unit
 {
     public class UnitMotor : CoreNetworkBehaviour
     {
+        [SerializeField] private float lerpSpeed = 20f;
         public Action OnMoveStartedServer;
         public Action OnMoveFinishedServer;
 
@@ -17,14 +18,15 @@ namespace TRPG.Unit
         public Action<bool> OnMoveFinishedCallback;
 
 
-        private readonly SyncVar<Vector3> syncPosition = new SyncVar<Vector3>();
-        private readonly SyncVar<Quaternion> syncRotation = new SyncVar<Quaternion>();
+        private readonly SyncVar<Vector3> syncPosition = new SyncVar<Vector3>(new SyncTypeSettings(0.1f));
+        private readonly SyncVar<Quaternion> syncRotation = new SyncVar<Quaternion>(new SyncTypeSettings(0.1f));
+        private readonly SyncVar<float> moveMagnitude = new SyncVar<float>();
         private readonly SyncVar<bool> isMoving = new SyncVar<bool>();
 
         private NavMeshAgent navMeshAgent;
         private UnitController context;
 
-        public float MoveMagnitude => navMeshAgent.velocity.magnitude / navMeshAgent.speed;
+        public float MoveMagnitude => moveMagnitude.Value;
 
         private bool hasReachedDestination; //This field only runs on server.
 
@@ -37,14 +39,24 @@ namespace TRPG.Unit
             navMeshAgent = GetComponent<NavMeshAgent>();
         }
 
+        [Server(Logging = FishNet.Managing.Logging.LoggingType.Off)]
         public override void OnServerUpdate()
         {
             base.OnServerUpdate();
 
-            syncPosition.Value = transform.position;
-            syncRotation.Value = transform.rotation;
+            // Update only if there’s a significant change in position or rotation
+            if (Vector3.Distance(syncPosition.Value, transform.position) > 0.1f)
+            {
+                syncPosition.Value = transform.position;
+            }
+            if (Quaternion.Angle(syncRotation.Value, transform.rotation) > 0.1f)
+            {
+                syncRotation.Value = transform.rotation;
+            }
 
             if (!context.IsSelected) return;
+
+            moveMagnitude.Value = navMeshAgent.velocity.magnitude / navMeshAgent.speed;
 
             if (!hasReachedDestination && HasReachedDestination())
             {
@@ -60,11 +72,16 @@ namespace TRPG.Unit
             }
         }
 
+        [Client(Logging = FishNet.Managing.Logging.LoggingType.Off)]
         public override void OnClientUpdate()
         {
             base.OnClientUpdate();
-            transform.position = syncPosition.Value;
-            syncRotation.Value = syncRotation.Value;
+            // Interpolate position and rotation for smooth movement on the client side
+            if (IsMoving)
+            {
+                transform.position = Vector3.Lerp(transform.position, syncPosition.Value, Time.deltaTime * lerpSpeed);
+                transform.rotation = Quaternion.Slerp(transform.rotation, syncRotation.Value, Time.deltaTime * lerpSpeed);
+            }
         }
 
         [Server]
@@ -88,14 +105,13 @@ namespace TRPG.Unit
             OnMoveFinishedCallback?.Invoke(IsOwner);
         }
 
-
         private bool HasReachedDestination()
         {
             // Check if the path calculation is complete and the agent is close enough to the destination
             if (!navMeshAgent.pathPending && navMeshAgent.remainingDistance <= navMeshAgent.stoppingDistance)
             {
                 // Ensure the agent is not still moving
-                return !navMeshAgent.hasPath || navMeshAgent.velocity.sqrMagnitude == 0f;
+                return !navMeshAgent.hasPath || navMeshAgent.velocity.sqrMagnitude < 0.1f;
             }
             return false;
         }

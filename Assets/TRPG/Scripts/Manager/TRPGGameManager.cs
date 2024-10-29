@@ -29,15 +29,6 @@ namespace TRPG.Unit
             networkManager.SceneManager.OnClientLoadedStartScenes += SceneManager_OnClientLoadedStartScenes;
         }
 
-        public override void OnStartClient()
-        {
-            base.OnStartClient();
-            if (IsOwner)
-            {
-                HUD.OnEndTurn += ChangeNextPlayerTurn;
-            }
-        }
-
         private void Initialize()
         {
             // Get the NetworkManager instance
@@ -80,16 +71,32 @@ namespace TRPG.Unit
 
             RegisterPlayer(player);
 
-            player.Initialized(SceneSpawnAreaManager.S.GetArea(), conn);
-            SceneSpawnAreaManager.S.IncreaseAreaIndex();
-
             //If there are no global scenes 
             if (addToDefaultScene)
                 networkManager.SceneManager.AddOwnerToDefaultScene(nob);
+
+            player.Initialized(SceneSpawnAreaManager.S.GetArea(), conn);
+            SceneSpawnAreaManager.S.IncreaseAreaIndex();
+
+            StartFirstPlayerTurn(player);
         }
 
-        [ServerRpc]
-        private void ChangeNextPlayerTurn()
+        [Server]
+        private void StartFirstPlayerTurn(NetworkPlayer player)
+        {
+            int playerIndex = nwPlayerList.IndexOf(player); 
+            if (playerIndex == 0)
+            {
+                nwPlayerList[playerIndex].StartOwnerTurn();
+            }
+            else
+            {
+                nwPlayerList[playerIndex].StopOwnerTurn();
+            }
+        }
+
+        [Server]
+        public void ChangeNextPlayerTurn()
         {
             nwPlayerList[currentPlayerIndex.Value].StopOwnerTurn();
             currentPlayerIndex.Value++;
@@ -99,6 +106,7 @@ namespace TRPG.Unit
             nwPlayerList[currentPlayerIndex.Value].StartOwnerTurn();
         }
 
+        [Server]
         public bool RegisterPlayer(NetworkPlayer player)
         {
             if (nwPlayerList.Contains(player))
@@ -107,6 +115,7 @@ namespace TRPG.Unit
             return true;
         }
 
+        [Server]
         public bool UnregisterPlayer(NetworkPlayer player)
         {
             return nwPlayerList.Remove(player);

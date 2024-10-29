@@ -11,13 +11,17 @@ namespace TRPG
     {
         [SerializeField] private Camera _camera;
         [SerializeField] private float lerpSpeed = 10f;
+        [SerializeField] private float rotateDuration = 1;
+        [SerializeField] private Transform positionHandler;
+        [SerializeField] private Transform rotationHandler;
+
         private const float tolerance = 0.01f;
         public void ResetCameraTransform()
         {
             StartCoroutine(LerpTransformCoroutine(_camera.transform, Vector3.zero, Quaternion.identity, true));
         }
 
-        public virtual void MoveTo(Vector3 position)
+        public virtual void MoveTo(Vector3 position, Quaternion rotation)
         {
             StartCoroutine(LerpTransformCoroutine(transform, position, Quaternion.identity, false));
         }
@@ -42,6 +46,52 @@ namespace TRPG
 
                 yield return null; // Wait for the next frame and continue the loop
             }
+        }
+
+        public void Rotate(float yAngle, bool isLeftSide)
+        {
+            float yAxis = rotationHandler.eulerAngles.y;
+
+            if (isLeftSide)
+            {
+                yAxis -= yAngle;  // Rotate 90 degrees counterclockwise
+            }
+            else
+            {
+                yAxis += yAngle;  // Rotate 90 degrees clockwise
+            }
+
+            // Apply the new rotation to the rotation handler
+
+            StartCoroutine(LerpVector3(rotationHandler.rotation, new Vector3(
+                rotationHandler.eulerAngles.x,
+                yAxis,
+                rotationHandler.eulerAngles.z
+            )));
+        }
+
+        public Quaternion GetRotationHandler(float yAngle)
+        {
+            float yAxis = rotationHandler.eulerAngles.y;
+            yAxis += yAngle;
+            return Quaternion.Euler(rotationHandler.eulerAngles.x, yAxis, rotationHandler.eulerAngles.z);
+        }
+
+        private IEnumerator LerpVector3(Quaternion currentRotation, Vector3 target)
+        {
+            Quaternion startRotation = currentRotation;
+            Quaternion endRotation = Quaternion.Euler(target);
+            float elapsedTime = 0f;
+
+            while (elapsedTime < rotateDuration)
+            {
+                currentRotation = Quaternion.Lerp(startRotation, endRotation, elapsedTime / rotateDuration);
+                elapsedTime += Time.deltaTime;
+                yield return null;
+            }
+
+            // Ensure final rotation matches exactly
+            currentRotation = endRotation;
         }
     }
 }

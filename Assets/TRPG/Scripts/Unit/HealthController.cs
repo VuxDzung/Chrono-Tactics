@@ -1,9 +1,6 @@
 using FishNet.Object;
 using FishNet.Object.Synchronizing;
 using System;
-using System.Collections;
-using System.Collections.Generic;
-using Unity.VisualScripting;
 using UnityEngine;
 
 namespace TRPG
@@ -20,12 +17,23 @@ namespace TRPG
 
         private readonly SyncVar<float> syncCurrentHealth = new SyncVar<float>();
 
+        public bool IsDead => syncCurrentHealth.Value <= 0;
+
         public override void OnStartNetwork()
         {
             base.OnStartNetwork();
-            Setup();
         }
 
+        public override void OnStartClient()
+        {
+            base.OnStartClient();
+            if (IsOwner)
+            {
+                Setup();
+            }
+        }
+
+        [ServerRpc]
         public virtual void Setup()
         {
             syncCurrentHealth.Value = maxHealth;
@@ -37,16 +45,17 @@ namespace TRPG
             if (syncCurrentHealth.Value <= 0) return;
 
             syncCurrentHealth.Value -= damage;
+            Debug.Log($"{gameObject.name}.Health={syncCurrentHealth.Value}");
 
             if (syncCurrentHealth.Value <= 0)
             {
-                OnTakeDamage?.Invoke();
-                TakeDamageCallback();
+                OnDead?.Invoke();
+                DeadCallback();
             }
             else
             {
-                OnDead?.Invoke();
-                DeadCallback();
+                OnTakeDamage?.Invoke();
+                TakeDamageCallback();
             }
         }
 

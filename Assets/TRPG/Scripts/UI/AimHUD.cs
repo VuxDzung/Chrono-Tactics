@@ -4,6 +4,7 @@ using UnityEngine;
 using DevOpsGuy.GUI;
 using UnityEngine.UI;
 using System;
+using TMPro;
 
 namespace TRPG 
 {
@@ -11,7 +12,8 @@ namespace TRPG
     {
         public static Action OnFire;
         public static Action OnCancel;
-
+        [SerializeField] private TextMeshProUGUI tmpEnemyName;
+        [SerializeField] private TextMeshProUGUI tmpHitRate;
         [SerializeField] private Button btnFire;
         [SerializeField] private Button btnCancel;
 
@@ -25,6 +27,7 @@ namespace TRPG
         {
             btnFire.onClick.RemoveListener(ClickFire);
             btnCancel.onClick.RemoveListener(ClickCancel);
+            ClearData();
         }
 
         public void ClickFire()
@@ -35,6 +38,22 @@ namespace TRPG
         public void ClickCancel()
         {
             OnCancel?.Invoke();
+        }
+
+        public void SetEnemyName(string  enemyName)
+        {
+            tmpEnemyName.text = enemyName;
+        }
+
+        public void SetHitRate(float hitRate)
+        {
+            tmpHitRate.text = hitRate.ToString();
+        }
+
+        private void ClearData()
+        {
+            tmpEnemyName.text = "";
+            tmpHitRate.text = "";
         }
     }
 }

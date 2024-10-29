@@ -77,6 +77,7 @@ namespace TRPG
 
         private void EndTurn()
         {
+            Debug.Log("EndTurn");
             OnEndTurn?.Invoke();
         }
 

@@ -51,23 +51,21 @@ namespace TRPG
             WeaponData primaryWeaponData = config.GetDataBydId(primaryWeaponId.Value);
             WeaponData secondaryWeaponData = config.GetDataBydId(secondaryWeaponId.Value);
 
-            //Initialize weapons.
+            // Instantiate and spawn primary weapon
             BaseWeapon _primaryWeapon = Instantiate(primaryWeaponData.weaponPrefab);
-            BaseWeapon _secondaryWeapon = Instantiate(secondaryWeaponData.weaponPrefab);
-
-            //Init weapons on server.
             ServerManager.Spawn(_primaryWeapon.gameObject, Owner);
-            ServerManager.Spawn(_secondaryWeapon.gameObject, Owner);
-
-            _primaryWeapon.SetParent(context.BoneController.GetBoneRefByHandler(primaryWeaponData.activeHandler).transform);
-            _secondaryWeapon.SetParent(context.BoneController.GetBoneRefByHandler(secondaryWeaponData.inactiveHandler).transform);
-
             primaryWeaponObj.Value = _primaryWeapon;
+
+            // Instantiate and spawn secondary weapon
+            BaseWeapon _secondaryWeapon = Instantiate(secondaryWeaponData.weaponPrefab);
+            ServerManager.Spawn(_secondaryWeapon.gameObject, Owner);
             secondaryWeaponObj.Value = _secondaryWeapon;
 
             selectedWeapon.Value = primaryWeaponObj.Value;
-
             selectedWeaponId.Value = primaryWeaponId.Value;
+
+            _primaryWeapon.SetParent(context.BoneController.GetBoneRefByHandler(primaryWeaponData.activeHandler).transform);
+            _secondaryWeapon.SetParent(context.BoneController.GetBoneRefByHandler(secondaryWeaponData.inactiveHandler).transform);
         }
 
         public virtual void LoadWeaponUI()
