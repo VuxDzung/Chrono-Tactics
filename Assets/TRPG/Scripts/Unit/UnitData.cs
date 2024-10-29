@@ -12,6 +12,6 @@ namespace TRPG.Unit
         public Sprite thumbnail;
         public float defaultHealth;
         public float evasion;
-        public int fov;
+        public int viewRadius;
     }
 }

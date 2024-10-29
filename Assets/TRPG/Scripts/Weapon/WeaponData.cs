@@ -9,6 +9,7 @@ namespace TRPG
         Sword = 1,
         Pistol = 2,
         Rifle = 3,
+        Grenade = 4,
     }
 
     public enum Handler
@@ -38,5 +39,14 @@ namespace TRPG
         public BaseWeapon weaponPrefab;
         public Handler activeHandler;
         public Handler inactiveHandler;
+
+        public GrenadeSettings grenadeSettings;
+    }
+
+    [Serializable]
+    public class GrenadeSettings
+    {
+        public float blastRadius;
+        public float decreasePerWorldUnit;
     }
 }

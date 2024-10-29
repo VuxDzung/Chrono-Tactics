@@ -16,4 +16,5 @@ MonoBehaviour:
   unitName: Dummy
   thumbnail: {fileID: 0}
   defaultHealth: 100
-  fov: 5
+  evasion: 0
+  fov: 3

@@ -1,4 +1,5 @@
 using DevOpsGuy.GUI;
+using FishNet;
 using FishNet.Object;
 using FishNet.Object.Synchronizing;
 using System.Collections;
@@ -9,7 +10,6 @@ namespace TRPG.Unit
 {
     public class UnitCombatBrain : CoreNetworkBehaviour
     {
-        [SerializeField] private LayerMask enemyLayer;
         [SerializeField] private float range;
         [SerializeField] private Transform fireTransform;
 
@@ -17,10 +17,13 @@ namespace TRPG.Unit
 
         private readonly SyncVar<int> fireCounter = new SyncVar<int>();
         private readonly SyncVar<float> currentHitChange = new SyncVar<float>();
+        private readonly SyncVar<bool> IsInOverwatch = new SyncVar<bool>();
 
         #region Server-Side fields [These fields cannot be read on client side]
         private List<HealthController> scannedEnemyList = new List<HealthController>();
         private int currentEnemyIndex;
+        private Vector3 endPosition;
+        private bool hasAttackedInOverwatch;
         #endregion
 
         #region Client-Side fields
@@ -41,10 +44,28 @@ namespace TRPG.Unit
             }
         }
 
+        public override void OnServerUpdate()
+        {
+            base.OnServerUpdate();
+            if (IsInOverwatch.Value)
+            {
+                List<Transform> enemyTransformList = DetectEnemiesInFOV();
+                if (!hasAttackedInOverwatch && enemyTransformList.Count > 0)
+                {
+                    UnitController enemyController = enemyTransformList[0].GetComponent<UnitController>();
+                    if (enemyController != null)
+                    {
+                        enemyController.Health.TakeDamage(context.WeaponManager.CurrentWeaponData.baseDamage);
+                        hasAttackedInOverwatch = true;
+                    }
+                }
+            }
+        }
+
         [Server]
         public virtual void Scanning()
         {
-            Collider[] colliders = Physics.OverlapSphere(transform.position, range, enemyLayer);
+            Collider[] colliders = Physics.OverlapSphere(transform.position, range, SceneLayerMasks.GetLayerMaskByCategory(MaskCategory.Unit));
             List<HealthController> enemyList = new List<HealthController>();
             foreach (Collider collider in colliders)
             {
@@ -136,11 +157,83 @@ namespace TRPG.Unit
             return CoverType.None; // No cover if raycast doesn't hit anything
         }
 
+        [Server]
         public bool IsHit(float hitChance)
         {
             int roll = Random.Range(0, 100);
             return roll < hitChance;
         }
+
+        [ServerRpc]
+        private void SetEndPosition(Vector3 endPosition)
+        {
+            this.endPosition = endPosition;
+        }
+
+        #region Server-Logic [Overwatch] 
+        [Server]
+        public void StartOverwatch()
+        {
+            IsInOverwatch.Value = true;
+        }
+
+        [Server]
+        public void ResetOverwatch()
+        {
+            IsInOverwatch.Value = false;
+            hasAttackedInOverwatch = false;
+        }
+
+        /// <summary>
+        /// Checks if a single enemy is within the unit's field of view.
+        /// </summary>
+        [Server]
+        private bool IsEnemyInFOV(Transform enemy)
+        {
+            // Calculate direction and distance to the enemy
+            Vector3 directionToEnemy = (enemy.position - transform.position);
+            float distanceToEnemy = directionToEnemy.magnitude;
+
+            // Check if within range
+            if (distanceToEnemy > context.Data.viewRadius) return false;
+
+            // Check if within field of view angle
+            //float angleToEnemy = Vector3.Angle(transform.forward, directionToEnemy);
+            //if (angleToEnemy > viewAngle / 2) return false;
+
+            // Optional: Check for line of sight with raycast
+            if (Physics.Raycast(transform.position, directionToEnemy.normalized, out RaycastHit hit, context.Data.viewRadius, SceneLayerMasks.GetLayerMaskByCategory(MaskCategory.Obstacle)))
+            {
+                if (hit.transform != enemy) return false;  // Obstacle is blocking the view
+            }
+
+            // Enemy is within FOV and visible
+            return true;
+        }
+
+        /// <summary>
+        /// Detects and returns a list of all enemies within the unit's field of view.
+        /// </summary>
+        [Server]
+        private List<Transform> DetectEnemiesInFOV()
+        {
+            List<Transform> enemiesInFOV = new List<Transform>();
+
+            // Check for enemies within view range using a sphere overlap
+            Collider[] enemiesInRange = Physics.OverlapSphere(transform.position, context.Data.viewRadius, SceneLayerMasks.GetLayerMaskByCategory(MaskCategory.Unit));
+
+            foreach (Collider enemyCollider in enemiesInRange)
+            {
+                Transform enemyTransform = enemyCollider.transform;
+                if (IsEnemyInFOV(enemyTransform))
+                {
+                    enemiesInFOV.Add(enemyTransform);
+                }
+            }
+
+            return enemiesInFOV;
+        }
+        #endregion
 
         #region Callback
         [ObserversRpc]
@@ -163,6 +256,33 @@ namespace TRPG.Unit
 
             if (IsClientInitialized)
                 OnDamageClient();
+        }
+
+        public void TossGrenade()
+        {
+            if (IsServerInitialized)
+                OnTossGrenadeServer();
+
+            if (IsClientInitialized)
+                OnTossGrenadeClient();
+        }
+
+
+        [Server]
+        private void OnTossGrenadeServer()
+        {
+            // - Spawn the grenade.
+            WeaponData grenadeData = context.WeaponManager.Config.GetDataByType(WeaponType.Grenade);
+            NetworkObject networkGrenadeObject = InstanceFinder.NetworkManager.GetPooledInstantiated(grenadeData.weaponPrefab.GetComponent<NetworkObject>(), context.BoneController.GetBoneRefByHandler(Handler.RightHand).transform.position, Quaternion.identity, true);
+            ServerManager.Spawn(networkGrenadeObject, Owner);
+            NetworkGrenade netGrenade = networkGrenadeObject.GetComponent<NetworkGrenade>();
+            netGrenade.Toss(context.transform.position, endPosition);
+        }
+
+        [Client]
+        private void OnTossGrenadeClient()
+        {
+
         }
 
         [Server]

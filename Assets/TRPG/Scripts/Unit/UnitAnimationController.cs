@@ -21,7 +21,7 @@ namespace TRPG.Unit
         #endregion
 
         #region Animator States
-        public static string STATE_SINGLE_FIRE = "SingleFire";
+        public static string STATE_RIFLE_FIRE = "FireRifle";
         public static string STATE_DEAD = "Dead";
         #endregion
 
@@ -53,7 +53,7 @@ namespace TRPG.Unit
 
         public virtual void TriggerFireAnimation()
         {
-            CrossFade(STATE_SINGLE_FIRE, 0.2f, LAYER_ARMS);
+            CrossFade(STATE_RIFLE_FIRE, 0.2f, LAYER_ARMS);
         }
 
         public virtual void DeadAnimation()

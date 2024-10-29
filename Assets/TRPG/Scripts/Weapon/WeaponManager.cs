@@ -22,6 +22,8 @@ namespace TRPG
         private readonly SyncVar<BaseWeapon> secondaryWeaponObj = new SyncVar<BaseWeapon>();
         private readonly SyncVar<BaseWeapon> selectedWeapon = new SyncVar<BaseWeapon>();
 
+
+        public WeaponConfigSO Config => config;
         public BaseWeapon CurrentWeapon => selectedWeapon.Value;
         public WeaponData CurrentWeaponData => config.GetDataBydId(selectedWeaponId.Value);
 

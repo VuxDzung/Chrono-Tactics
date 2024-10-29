@@ -12,11 +12,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e7a62e68eb48f314f93a28628c65016a, type: 3}
   m_Name: Ability-Overwatch
   m_EditorClassIdentifier: 
-  type: 0
-  cost: 0
+  type: 2
+  cost: 1
   thumbnail: {fileID: 0}
-  steps: 
+  steps: 01000000
   timerConfig:
     useTimer: 0
     delay: 0
     duration: 0
+    clip: {fileID: 0}

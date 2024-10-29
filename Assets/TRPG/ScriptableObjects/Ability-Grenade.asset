@@ -12,11 +12,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 36d17e0e6075855408330b5a5f6774d4, type: 3}
   m_Name: Ability-Grenade
   m_EditorClassIdentifier: 
-  type: 0
-  cost: 0
+  type: 3
+  cost: 1
   thumbnail: {fileID: 0}
-  steps: 
+  steps: 0000000001000000
   timerConfig:
     useTimer: 0
     delay: 0
     duration: 0
+    clip: {fileID: 0}

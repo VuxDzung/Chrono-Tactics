@@ -1,5 +1,6 @@
 using Cinemachine;
 using DevOpsGuy.GUI;
+using FischlWorks_FogWar;
 using FishNet.Object;
 using FishNet.Object.Synchronizing;
 using System;
@@ -76,6 +77,7 @@ namespace TRPG.Unit
                 tpCamera = GetComponentInChildren<CinemachineVirtualCamera>();
                 tpCamera.enabled = false;
                 AssignUnitOwnerRef();
+                csFogWar.instance.AddFogRevealer(new csFogWar.FogRevealer(transform, data.viewRadius, false));
             }
         }
 
@@ -177,7 +179,7 @@ namespace TRPG.Unit
 
                 if (GridManager.Singleton.IsValidCell(roundedDestination))
                 {
-                    if (Vector3Int.Distance(roundedPos, roundedDestination) <= data.fov)
+                    if (Vector3Int.Distance(roundedPos, roundedDestination) <= data.viewRadius)
                     {
                         Motor.MoveTo(roundedDestination);
                         return true;
@@ -207,7 +209,7 @@ namespace TRPG.Unit
 
         public virtual void EnableCellsAroundUnit()
         {
-            GridManager.Singleton.EnableSurroundingCells(transform.position, data.fov);
+            GridManager.Singleton.EnableSurroundingCells(transform.position, data.viewRadius);
         }
 
         #endregion

@@ -1,11 +1,8 @@
 using FishNet.Object.Synchronizing;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using TRPG.Unit;
 using FishNet.Object;
 using DevOpsGuy.GUI;
-using Unity.Burst.CompilerServices;
 using FishNet.Connection;
 using System.Linq;
 
@@ -22,8 +19,6 @@ namespace TRPG
         private const string UNIT_NAME_FORMAT = "Unit [Owner:{0} | Index:[{1}]]";
 
         [SerializeField] private CommandInputManager commandInput;
-        [SerializeField] private LayerMask unitLayer;
-        [SerializeField] private LayerMask groundLayer;
         [SerializeField] private UnitController testUnitPrefab;
 
         private const int DEFAULT_ACTION_POINT = 2;
@@ -81,8 +76,6 @@ namespace TRPG
             RegisterUnit(unit);
 
             spawnArea.IncreasePointIndex();
-
-            Debug.Log($"{gameObject.name}.Owner={owner.ClientId}");
         }
 
         [Server]
@@ -104,7 +97,7 @@ namespace TRPG
         {
             if (commandInput.LeftMouseDown)
             {
-                Physics.Raycast(GetRay(), out RaycastHit hit, unitLayer);
+                Physics.Raycast(GetRay(), out RaycastHit hit, SceneLayerMasks.GetLayerMaskByCategory(MaskCategory.Unit));
                 if (hit.collider)
                 {
                     OnSelectUnit(hit);
@@ -112,17 +105,11 @@ namespace TRPG
             }
         }
 
-        [ServerRpc]
-        protected virtual void EndTurn()
-        {
-            TRPGGameManager.Instance.ChangeNextPlayerTurn();
-        }
-
         protected virtual void MovePlayerUnitInput()
         {
             if (commandInput.RightMouseDown)
             {
-                Physics.Raycast(GetRay(), out RaycastHit hit, groundLayer);
+                Physics.Raycast(GetRay(), out RaycastHit hit, SceneLayerMasks.GetLayerMaskByCategory(MaskCategory.Ground));
                 if (hit.transform && selectedUnit.Value != null)
                 {
                     OnMovePlayerUnit(hit.point);
@@ -231,13 +218,15 @@ namespace TRPG
         [Server]
         private void ResetUnitAbility()
         {
-            unitDictionary.Keys.ToList().ForEach(key => key.AbilityController.ResetDefaultAbility());
+            unitDictionary.Keys.ToList().ForEach(key => {
+                key.AbilityController.ResetDefaultAbility();
+                key.CombatBrain.ResetOverwatch();
+            });
         }
 
         [Server]
         public virtual void StartOwnerTurn()
         {
-            Debug.Log($"{gameObject.name}.StartTurn");
             isOwnerTurn.Value = true;
             commandInput.LockInput.Value = false;
             ResetUnitActionPoint();
@@ -254,6 +243,13 @@ namespace TRPG
             OnStopTurnCallback();
         }
 
+        [ServerRpc]
+        protected virtual void EndTurn()
+        {
+            TRPGGameManager.Instance.ChangeNextPlayerTurn();
+        }
+
+        [ObserversRpc]
         public virtual void StartTurnCallback()
         {
             if (IsOwner)
