@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -13,6 +14,9 @@ namespace DevOpsGuy.GUI
 
         public KeyCode ShortcutInput => shortcutInput;
         public CursorLockMode CursorMode => cursorMode;
+
+        public static Action OnShow;
+        public static Action OnHide;
 
         protected UIManager manager;
 
@@ -32,10 +36,12 @@ namespace DevOpsGuy.GUI
 
         public virtual void Show() {
             gameObject.SetActive(true);
+            OnShow?.Invoke();
         }
 
         public virtual void Hide() {
             gameObject.SetActive(false);
+            OnHide?.Invoke();
         }
     }
 }

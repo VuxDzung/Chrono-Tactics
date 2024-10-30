@@ -42,4 +42,5 @@ public enum MaskCategory
     Unit,
     Obstacle,
     Ground,
+    GridObstacle
 }

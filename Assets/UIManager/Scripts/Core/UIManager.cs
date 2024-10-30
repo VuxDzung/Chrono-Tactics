@@ -129,7 +129,7 @@ namespace DevOpsGuy.GUI
             }
         }
 
-        public static void ShowUI<T>() where T : UIBehaviour
+        public static T ShowUI<T>() where T : UIBehaviour
         {
             T ui = GetUI<T>();
             if (ui != null) {
@@ -141,6 +141,7 @@ namespace DevOpsGuy.GUI
             {
                 Debug.Log($"<color=red>UI of type {typeof(T)} is null!</color>");
             }
+            return ui;
         }
 
         public static void HideUI<T>() where T : UIBehaviour

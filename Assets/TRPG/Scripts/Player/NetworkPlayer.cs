@@ -5,6 +5,7 @@ using FishNet.Object;
 using DevOpsGuy.GUI;
 using FishNet.Connection;
 using System.Linq;
+using System.Collections.Generic;
 
 namespace TRPG
 {
@@ -16,10 +17,10 @@ namespace TRPG
 
     public class NetworkPlayer : CoreNetworkBehaviour
     {
-        private const string UNIT_NAME_FORMAT = "Unit [Owner:{0} | Index:[{1}]]";
+        private const string UNIT_NAME_FORMAT = "Unit [Owner:{0}|ID:[{1}]]";
 
         [SerializeField] private CommandInputManager commandInput;
-        [SerializeField] private UnitController testUnitPrefab;
+        [SerializeField] private List<UnitController> unitPrefabList;
 
         private const int DEFAULT_ACTION_POINT = 2;
 
@@ -43,6 +44,9 @@ namespace TRPG
                 HUD.OnPrevUnit += ChangePrevUnit;
                 HUD.OnEndTurn += EndTurn;
 
+                MessageBoxTimer.OnShow += hud.HideUIAbilities;
+                MessageBoxTimer.OnHide += hud.ShowUIAbilities;
+
                 switch (OwnerId)
                 {
                     case 0:
@@ -55,6 +59,17 @@ namespace TRPG
             }
         }
 
+        public override void OnStopClient()
+        {
+            base.OnStopClient();
+            if (IsOwner)
+            {
+                MessageBoxTimer.OnShow -= hud.HideUIAbilities;
+                MessageBoxTimer.OnHide -= hud.ShowUIAbilities;
+            }
+        }
+
+
         public override void OnClientUpdate()
         {
             base.OnClientUpdate();
@@ -63,19 +78,24 @@ namespace TRPG
                 SelectUnitInput();
                 MovePlayerUnitInput();
                 RotateCameraInput();
+                ChangeFireTargetInput();
+                MoveCameraInput();
             }
         }
 
         [Server]
         public virtual void Initialized(SpawnArea spawnArea, NetworkConnection owner)
         {
-            UnitController unit = Instantiate(testUnitPrefab, spawnArea.GetPoint().transform.position, spawnArea.GetPoint().rotation);
-            unit.gameObject.name = string.Format(UNIT_NAME_FORMAT, OwnerId, unitDictionary.Count);
-            ServerManager.Spawn(unit.gameObject, owner);
+            unitPrefabList.ForEach(unitPrefab => {
+                UnitController unit = Instantiate(unitPrefab, spawnArea.GetPoint().transform.position, spawnArea.GetPoint().rotation);
+                unit.gameObject.name = string.Format(UNIT_NAME_FORMAT, OwnerId, unitDictionary.Count);
+                ServerManager.Spawn(unit.gameObject, owner);
 
-            RegisterUnit(unit);
+                RegisterUnit(unit);
 
-            spawnArea.IncreasePointIndex();
+                spawnArea.IncreasePointIndex();
+            });
+            currentUnitIndex.Value = 0;
         }
 
         [Server]
@@ -130,26 +150,59 @@ namespace TRPG
             }
         }
 
+        protected virtual void MoveCameraInput()
+        {
+            if (commandInput.MoveCameraInput.magnitude > 0.1f)
+                SceneCamera.Singleton.Move(commandInput.MoveCameraInput.x, commandInput.MoveCameraInput.y);
+        }
+
+        [Server]
         protected virtual void ChangeFireTargetInput()
         {
             if (commandInput.Tab)
             {
-
+                if (selectedUnit.Value != null)
+                {
+                    if (selectedUnit.Value.AbilityController.CurrentAbility == AbilityType.Shoot)
+                    {
+                        selectedUnit.Value.CombatBrain.ChangeToNextTarget();
+                    }
+                }
             }
         }
 
+        [ServerRpc]
         protected virtual void ChangeNextUnit()
         {
+            if (selectedUnit.Value != null)
+            {
+                int index = unitDictionary.Keys.ToList().IndexOf(selectedUnit.Value);
+                currentUnitIndex.Value = index;
+            }
+
             currentUnitIndex.Value++;
             if (currentUnitIndex.Value >= unitDictionary.Count)
                 currentUnitIndex.Value = 0;
+
+            UnitController _selectedUnit = unitDictionary.Keys.ToList()[currentUnitIndex.Value];
+            AssignSelectedUnit(_selectedUnit);
         }
 
+        [ServerRpc]
         protected virtual void ChangePrevUnit()
         {
+            if (selectedUnit.Value != null)
+            {
+                int index = unitDictionary.Keys.ToList().IndexOf(selectedUnit.Value);
+                currentUnitIndex.Value = index;
+            }
+
             currentUnitIndex.Value--;
             if (currentUnitIndex.Value < 0)
                 currentUnitIndex.Value = unitDictionary.Count - 1;
+
+            UnitController _selectedUnit = unitDictionary.Keys.ToList()[currentUnitIndex.Value];
+            AssignSelectedUnit(_selectedUnit);
         }
 
         [ServerRpc]
@@ -183,11 +236,11 @@ namespace TRPG
                 {
                     if (selectedUnit.IsSelected)
                     {
-                        AssignSelectedUnit(null);
+                        AssignSelectedUnitRpc(null);
                     }
                     else
                     {
-                        AssignSelectedUnit(selectedUnit);
+                        AssignSelectedUnitRpc(selectedUnit);
                     }
                 }
             }
@@ -198,13 +251,18 @@ namespace TRPG
         }
 
         [ServerRpc]
+        protected virtual void AssignSelectedUnitRpc(UnitController unit)
+        {
+            AssignSelectedUnit(unit);
+        }
+
+        [Server]
         protected virtual void AssignSelectedUnit(UnitController unit)
         {
             if (selectedUnit.Value != null)
                 selectedUnit.Value.Deselect();
 
             selectedUnit.Value = unit;
-
             if (selectedUnit.Value != null)
                 selectedUnit.Value.Select();
         }
@@ -212,7 +270,7 @@ namespace TRPG
         [Server]
         private void ResetUnitActionPoint()
         {
-            unitDictionary.Keys.ToList().ForEach(key => unitDictionary[key] = 2);
+            unitDictionary.Keys.ToList().ForEach(key => unitDictionary[key] = DEFAULT_ACTION_POINT);
         }
 
         [Server]

@@ -77,7 +77,7 @@ namespace TRPG.Unit
                 tpCamera = GetComponentInChildren<CinemachineVirtualCamera>();
                 tpCamera.enabled = false;
                 AssignUnitOwnerRef();
-                csFogWar.instance.AddFogRevealer(new csFogWar.FogRevealer(transform, data.viewRadius, false));
+                //csFogWar.instance.AddFogRevealer(new csFogWar.FogRevealer(transform, data.viewRadius, false));
             }
         }
 
@@ -85,7 +85,6 @@ namespace TRPG.Unit
         private void AssignUnitOwnerRef()
         {
             UnitOwner.Value = TRPGGameManager.Instance.GetPlayer(Owner);
-            Debug.Log($"UnitOwner:ID={UnitOwner.Value.OwnerId} | Name={UnitOwner.Value.gameObject.name}");
         }
 
         [Server]

@@ -1,3 +1,4 @@
+using DevOpsGuy.GUI;
 using FishNet.Object;
 using FishNet.Object.Synchronizing;
 using System;
@@ -35,6 +36,7 @@ namespace TRPG.Unit
         private readonly SyncVar<int> currentStepIndex = new SyncVar<int>();
 
         public bool HasActiveAbility => currentAbility.Value != AbilityType.None;
+        public AbilityType CurrentAbility => currentAbility.Value;
 
         //Server-Side fields [Cannot read on client]
         private float _delay;
@@ -50,9 +52,6 @@ namespace TRPG.Unit
         {
             delayTimer.OnChange -= OnDelayChange;
             durationTimer.OnChange -= OnDurationChange;
-
-            AimHUD.OnFire -= ConfirmAbility;
-            AimHUD.OnCancel -= CancelAbility;
         }
 
         public override void OnStartClient()
@@ -62,6 +61,16 @@ namespace TRPG.Unit
             {
                 AimHUD.OnFire += ConfirmAbility;
                 AimHUD.OnCancel += CancelAbility;
+            }
+        }
+
+        public override void OnStopClient()
+        {
+            base.OnStopClient();
+            if (IsOwner)
+            {
+                AimHUD.OnFire -= ConfirmAbility;
+                AimHUD.OnCancel -= CancelAbility;
             }
         }
 

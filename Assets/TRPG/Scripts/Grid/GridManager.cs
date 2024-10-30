@@ -10,7 +10,6 @@ public class GridManager : M_Singleton<GridManager>
     [SerializeField] private Transform parent;
     [SerializeField] private Vector2Int gridArea = new Vector2Int(100, 100);
     [SerializeField] private float colliderHalfCellSize = 0.45f;
-    [SerializeField] private LayerMask obstacleLayer;
 
     private VisualGrid[,] visualGrid2dArray;
     private Vector2Int configGridArea;
@@ -97,7 +96,7 @@ public class GridManager : M_Singleton<GridManager>
 
     public bool IsValidCell(Vector3 position)
     {
-        Collider[] obstacles = Physics.OverlapBox(position, new Vector3(colliderHalfCellSize, 0.5f, colliderHalfCellSize), Quaternion.identity, obstacleLayer.value);
+        Collider[] obstacles = Physics.OverlapBox(position, new Vector3(colliderHalfCellSize, 0.5f, colliderHalfCellSize), Quaternion.identity, SceneLayerMasks.GetLayerMaskByCategory(MaskCategory.GridObstacle));
 
         return obstacles.Length == 0;
     }

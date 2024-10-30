@@ -504,7 +504,7 @@ GameObject:
   - component: {fileID: 4451062943497329273}
   - component: {fileID: 75024714396984289}
   m_Layer: 6
-  m_Name: Unit [Owner  Index]
+  m_Name: Unit [Owner Id]
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -566,7 +566,6 @@ MonoBehaviour:
   data: {fileID: 11400000, guid: 7e2ff54c6b64a1342bdd4cd68b6d6112, type: 2}
   selectObj: {fileID: 3736341040011166014}
   tpCamera: {fileID: 3275815059153768656}
-  callOwnerRef: 1
 --- !u!114 &7670267354871547785
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -615,6 +614,7 @@ MonoBehaviour:
   _networkObjectCache: {fileID: 4623062290997814699}
   abilityList:
   - {fileID: 11400000, guid: d0072d67e7a6473438d14997c5bc5ded, type: 2}
+  - {fileID: 11400000, guid: b361ac7cea98ae94baaea07e847f2b79, type: 2}
 --- !u!114 &1292523713308021733
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -646,9 +646,6 @@ MonoBehaviour:
   _componentIndexCache: 5
   _addedNetworkObject: {fileID: 4623062290997814699}
   _networkObjectCache: {fileID: 4623062290997814699}
-  enemyLayer:
-    serializedVersion: 2
-    m_Bits: 64
   range: 100
   fireTransform: {fileID: 3140382892573138335}
 --- !u!114 &972818411181016448
@@ -769,7 +766,7 @@ MonoBehaviour:
   _teleportThreshold: 1
   <PrefabId>k__BackingField: 8
   <SpawnableCollectionId>k__BackingField: 0
-  <AssetPathHash>k__BackingField: 16963617780680559913
+  <AssetPathHash>k__BackingField: 8799136289880576877
   <SceneId>k__BackingField: 0
   SerializedTransformProperties:
     Position: {x: 0, y: 0, z: 0}

@@ -11,6 +11,7 @@ namespace TRPG
     {
         [SerializeField] private Camera _camera;
         [SerializeField] private float lerpSpeed = 10f;
+        [SerializeField] private float moveSpeed = 10f;
         [SerializeField] private float rotateDuration = 1;
         [SerializeField] private Transform positionHandler;
         [SerializeField] private Transform rotationHandler;
@@ -19,6 +20,11 @@ namespace TRPG
         public void ResetCameraTransform()
         {
             StartCoroutine(LerpTransformCoroutine(_camera.transform, Vector3.zero, Quaternion.identity, true));
+        }
+
+        public virtual void Move(float horizontal, float vertical)
+        {
+            transform.Translate(new Vector3(horizontal, 0, vertical) * moveSpeed * Time.deltaTime);
         }
 
         public virtual void MoveTo(Vector3 position, Quaternion rotation)

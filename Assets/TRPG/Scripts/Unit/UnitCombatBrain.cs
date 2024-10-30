@@ -17,6 +17,7 @@ namespace TRPG.Unit
 
         private readonly SyncVar<int> fireCounter = new SyncVar<int>();
         private readonly SyncVar<float> currentHitChange = new SyncVar<float>();
+        private readonly SyncVar<bool> hasEnemy = new SyncVar<bool>();
         private readonly SyncVar<bool> IsInOverwatch = new SyncVar<bool>();
 
         #region Server-Side fields [These fields cannot be read on client side]
@@ -25,6 +26,8 @@ namespace TRPG.Unit
         private Vector3 endPosition;
         private bool hasAttackedInOverwatch;
         #endregion
+
+        public bool HasEnemy => hasEnemy.Value;
 
         #region Client-Side fields
         private AimHUD aimHUD;
@@ -81,12 +84,20 @@ namespace TRPG.Unit
                 HealthController enemy = scannedEnemyList[currentEnemyIndex];
                 transform.LookAt(enemy.transform.position);
                 OnSelectTarget(enemy);
+                hasEnemy.Value = true;
+            }
+            else
+            {
+                //Message: No enemy available!
+                hasEnemy.Value = false;
             }
         }
 
         [Server]
         public virtual void ChangeToNextTarget()
         {
+            if (scannedEnemyList.Count == 0) return;
+
             currentEnemyIndex++;
             if (currentEnemyIndex >= scannedEnemyList.Count)
                 currentEnemyIndex = 0;
@@ -98,9 +109,10 @@ namespace TRPG.Unit
         [Server]
         private void OnSelectTarget(HealthController enemy)
         {
-            currentHitChange.Value = CalculateHitChance(enemy.GetComponent<UnitController>());
+            UnitController enemyUnit = enemy.GetComponent<UnitController>();
+            currentHitChange.Value = CalculateHitChance(enemyUnit);
             
-            OnSelectTargetCallback("", currentHitChange.Value);
+            OnSelectTargetCallback(enemyUnit.Data.name, currentHitChange.Value);
         }
 
         [Server]

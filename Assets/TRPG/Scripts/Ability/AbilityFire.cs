@@ -13,9 +13,12 @@ namespace TRPG.Unit
         public override void OnSelectServer(AbilityType type, UnitController context)
         {
             base.OnSelectServer(type, context);
-            Debug.Log($"{context.UnitOwner.Value.gameObject.name}");
-            Debug.Log($"{context.gameObject.name}.OnSelectServer");
             context.CombatBrain.Scanning();
+
+            if (!context.CombatBrain.HasEnemy) //Reset the ability
+            {
+                context.AbilityController.ResetDefaultAbility();
+            }
         }
 
         #endregion
@@ -27,9 +30,16 @@ namespace TRPG.Unit
             base.OnSelectCallback(type, context, isOwner);
             if (isOwner)
             {
-                UIManager.ShowUI<AimHUD>();
-                context.EnableTPCamera();
-                GridManager.Singleton.DisableAllCells();
+                if (context.CombatBrain.HasEnemy)
+                {
+                    UIManager.ShowUI<AimHUD>();
+                    context.EnableTPCamera();
+                    GridManager.Singleton.DisableAllCells();
+                }
+                else
+                {
+                    UIManager.ShowUI<MessageBoxTimer>().SetMessage("", "No enemy available!");
+                }
             }
         }
 
