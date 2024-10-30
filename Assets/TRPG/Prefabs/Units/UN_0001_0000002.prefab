@@ -11,8 +11,14 @@ PrefabInstance:
     - target: {fileID: 777677082989124084, guid: 4e82e3131b0c0af478f2819706e0c3f4,
         type: 3}
       propertyPath: abilityList.Array.size
-      value: 1
+      value: 2
       objectReference: {fileID: 0}
+    - target: {fileID: 777677082989124084, guid: 4e82e3131b0c0af478f2819706e0c3f4,
+        type: 3}
+      propertyPath: abilityList.Array.data[1]
+      value: 
+      objectReference: {fileID: 11400000, guid: b361ac7cea98ae94baaea07e847f2b79,
+        type: 2}
     - target: {fileID: 3632633627369567696, guid: 4e82e3131b0c0af478f2819706e0c3f4,
         type: 3}
       propertyPath: m_LocalPosition.x

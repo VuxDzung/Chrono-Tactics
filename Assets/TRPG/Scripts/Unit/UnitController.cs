@@ -119,8 +119,10 @@ namespace TRPG.Unit
             if (IsOwner)
             {
                 selectObj.SetActive(true);
+                hud.ClearUIAbilities();
                 AbilityController.LoadAbilityToUI(hud);
                 WeaponManager.LoadWeaponUI();
+
                 if (HasEnoughPoint)
                     EnableCellsAroundUnit();
             }

@@ -52,7 +52,6 @@ namespace TRPG
 
         public void AssignUIAbility(AbilityType type, Sprite thumbail, Action<AbilityType> OnSelectAbility)
         {
-            ClearUIAbilities();
             UIUnitAbility uiUnitAbility = Instantiate(uiAbility, uiParent);
             uiUnitAbility.Setup(type, OnSelectAbility);
             uiUnitAbility.Activate();
