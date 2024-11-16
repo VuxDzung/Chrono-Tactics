@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   type: 1
   cost: 1
-  thumbnail: {fileID: 0}
+  thumbnail: {fileID: 21300000, guid: 25180e46342b2214a9d68d0f0ce01ca5, type: 3}
   steps: 0000000001000000
   timerConfig:
     useTimer: 1

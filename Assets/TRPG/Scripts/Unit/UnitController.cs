@@ -120,6 +120,9 @@ namespace TRPG.Unit
             {
                 selectObj.SetActive(true);
                 hud.ClearUIAbilities();
+                AimHUD.OnFire = null;
+                AimHUD.OnCancel = null;
+
                 AbilityController.LoadAbilityToUI(hud);
                 WeaponManager.LoadWeaponUI();
 

@@ -12,6 +12,7 @@ namespace TRPG
     public class Obstacle : MonoBehaviour
     {
         [SerializeField] private CoverType type;
+        [SerializeField] private Collider[] colliders;
 
         public CoverType CoverType => type;
     }

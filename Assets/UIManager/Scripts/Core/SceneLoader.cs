@@ -7,7 +7,7 @@ using Utils;
 
 namespace DevOpsGuy
 {
-    public class SceneLoader : MonoBehaviour
+    public class SceneLoader : M_Singleton<SceneLoader>
     {
         [SerializeField] GameObject loadingPanel;
         [SerializeField] Slider loadingBar;

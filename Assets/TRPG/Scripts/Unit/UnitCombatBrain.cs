@@ -112,7 +112,7 @@ namespace TRPG.Unit
             UnitController enemyUnit = enemy.GetComponent<UnitController>();
             currentHitChange.Value = CalculateHitChance(enemyUnit);
             
-            OnSelectTargetCallback(enemyUnit.Data.name, currentHitChange.Value);
+            OnSelectTargetCallback(enemyUnit.Data.unitName, currentHitChange.Value);
         }
 
         [Server]

@@ -53,7 +53,7 @@ namespace TRPG
         public void AssignUIAbility(AbilityType type, Sprite thumbail, Action<AbilityType> OnSelectAbility)
         {
             UIUnitAbility uiUnitAbility = Instantiate(uiAbility, uiParent);
-            uiUnitAbility.Setup(type, OnSelectAbility);
+            uiUnitAbility.Setup(type, thumbail, OnSelectAbility);
             uiUnitAbility.Activate();
             uiAbilityList.Add(uiUnitAbility);
         }

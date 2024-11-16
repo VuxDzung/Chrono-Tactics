@@ -6,6 +6,7 @@ using DevOpsGuy.GUI;
 using FishNet.Connection;
 using System.Linq;
 using System.Collections.Generic;
+using System;
 
 namespace TRPG
 {
@@ -32,6 +33,11 @@ namespace TRPG
         private HUD hud;
 
         public bool IsOwnerTurn => isOwnerTurn.Value;
+
+        public Action OnPlayerLose;
+        public Action OnPlayerWin;
+        public Action OnPlayerLoseCallback;
+        public Action OnPlayerWinCallback;
 
         public override void OnStartClient()
         {
