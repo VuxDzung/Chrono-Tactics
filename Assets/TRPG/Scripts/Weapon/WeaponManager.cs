@@ -10,17 +10,17 @@ namespace TRPG
     {
         [SerializeField] private string testPrimaryId;
         [SerializeField] private string testSecondaryId;
-        [SerializeField] private WeaponConfigSO config;
+        [SerializeField] protected WeaponConfigSO config;
 
         protected UnitController context;
 
-        private readonly SyncVar<string> selectedWeaponId = new SyncVar<string>();
-        private readonly SyncVar<string> primaryWeaponId = new SyncVar<string>();
-        private readonly SyncVar<string> secondaryWeaponId = new SyncVar<string>();
+        protected readonly SyncVar<string> selectedWeaponId = new SyncVar<string>();
+        protected readonly SyncVar<string> primaryWeaponId = new SyncVar<string>();
+        protected readonly SyncVar<string> secondaryWeaponId = new SyncVar<string>();
 
-        private readonly SyncVar<BaseWeapon> primaryWeaponObj = new SyncVar<BaseWeapon>();
-        private readonly SyncVar<BaseWeapon> secondaryWeaponObj = new SyncVar<BaseWeapon>();
-        private readonly SyncVar<BaseWeapon> selectedWeapon = new SyncVar<BaseWeapon>();
+        protected readonly SyncVar<BaseWeapon> primaryWeaponObj = new SyncVar<BaseWeapon>();
+        protected readonly SyncVar<BaseWeapon> secondaryWeaponObj = new SyncVar<BaseWeapon>();
+        protected readonly SyncVar<BaseWeapon> selectedWeapon = new SyncVar<BaseWeapon>();
 
 
         public WeaponConfigSO Config => config;
@@ -35,10 +35,18 @@ namespace TRPG
         public override void OnStartClient()
         {
             base.OnStartClient();
-            if (IsOwner)
+            if (Owner != null && IsOwner)
             {
                 LoadSelectedWeapons();
             }
+        }
+
+        [Client]
+        public virtual void LoadWeaponUI()
+        {
+            WeaponData primaryWeaponData = config.GetDataBydId(primaryWeaponId.Value);
+            WeaponData secondaryWeaponData = config.GetDataBydId(secondaryWeaponId.Value);
+            UIManager.GetUI<HUD>().SwapSpriteField.SetSprites(primaryWeaponData.thumbnail, secondaryWeaponData.thumbnail);
         }
 
         /// <summary>
@@ -69,14 +77,6 @@ namespace TRPG
             _primaryWeapon.SetParent(context.BoneController.GetBoneRefByHandler(primaryWeaponData.activeHandler).transform);
             _secondaryWeapon.SetParent(context.BoneController.GetBoneRefByHandler(secondaryWeaponData.inactiveHandler).transform);
         }
-
-        public virtual void LoadWeaponUI()
-        {
-            WeaponData primaryWeaponData = config.GetDataBydId(primaryWeaponId.Value);
-            WeaponData secondaryWeaponData = config.GetDataBydId(secondaryWeaponId.Value);
-            UIManager.GetUI<HUD>().SwapSpriteField.SetSprites(primaryWeaponData.thumbnail, secondaryWeaponData.thumbnail);
-        }
-
 
         [ServerRpc]
         private void ChangeWeapon()

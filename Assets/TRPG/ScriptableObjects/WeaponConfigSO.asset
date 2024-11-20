@@ -13,10 +13,28 @@ MonoBehaviour:
   m_Name: WeaponConfigSO
   m_EditorClassIdentifier: 
   dataList:
+  - id: WE_0000_000000
+    weaponName: Fist
+    weaponType: 1
+    thumbnail: {fileID: 0}
+    rapidFire: 0
+    strikeCount: 1
+    delayBetweenStrike: 0
+    baseDamage: 20
+    baseAccuracy: 100
+    range: 1
+    weaponPrefab: {fileID: 1295390204769752748, guid: e13230ddbae5a8c45b82f40d03fa3261,
+      type: 3}
+    activeHandler: 0
+    inactiveHandler: 2
+    grenadeSettings:
+      blastRadius: 0
+      decreasePerWorldUnit: 0
   - id: WE_0001_000001
     weaponName: Sword
     weaponType: 1
     thumbnail: {fileID: 0}
+    rapidFire: 0
     strikeCount: 1
     delayBetweenStrike: 0
     baseDamage: 70
@@ -33,6 +51,7 @@ MonoBehaviour:
     weaponName: Pistol
     weaponType: 2
     thumbnail: {fileID: 21300000, guid: 4ea08d65514b1c84ab21127b786a4fb8, type: 3}
+    rapidFire: 0
     strikeCount: 1
     delayBetweenStrike: 0
     baseDamage: 20
@@ -49,8 +68,9 @@ MonoBehaviour:
     weaponName: Rifle
     weaponType: 3
     thumbnail: {fileID: 21300000, guid: c5dcd4deabcf403479a69199b9db58b7, type: 3}
+    rapidFire: 1
     strikeCount: 4
-    delayBetweenStrike: 0.1
+    delayBetweenStrike: 0.12
     baseDamage: 30
     baseAccuracy: 75
     range: 100
@@ -61,10 +81,62 @@ MonoBehaviour:
     grenadeSettings:
       blastRadius: 0
       decreasePerWorldUnit: 0
+  - id: WE_0003_000002
+    weaponName: M82A1
+    weaponType: 3
+    thumbnail: {fileID: 21300000, guid: 11181314fcea7b24685c1a3b6693baa9, type: 3}
+    rapidFire: 0
+    strikeCount: 1
+    delayBetweenStrike: 1
+    baseDamage: 100
+    baseAccuracy: 95
+    range: 100
+    weaponPrefab: {fileID: 8365749653400470736, guid: b9f1258501283144ea0f7436345a7b09,
+      type: 3}
+    activeHandler: 0
+    inactiveHandler: 2
+    grenadeSettings:
+      blastRadius: 4
+      decreasePerWorldUnit: 3
+  - id: WE_0003_000003
+    weaponName: P90
+    weaponType: 3
+    thumbnail: {fileID: 21300000, guid: e5e49028b50de3743811b861edc0de68, type: 3}
+    rapidFire: 1
+    strikeCount: 1
+    delayBetweenStrike: 0
+    baseDamage: 100
+    baseAccuracy: 75
+    range: 100
+    weaponPrefab: {fileID: 4902682818893096921, guid: c5c7886d87bf538469cdf94dcdc35ae9,
+      type: 3}
+    activeHandler: 0
+    inactiveHandler: 2
+    grenadeSettings:
+      blastRadius: 7
+      decreasePerWorldUnit: 3
+  - id: WE_0003_000004
+    weaponName: LMG
+    weaponType: 3
+    thumbnail: {fileID: 21300000, guid: 1e449b7e4a87ffb48bb70c753cd43fed, type: 3}
+    rapidFire: 1
+    strikeCount: 1
+    delayBetweenStrike: 0
+    baseDamage: 100
+    baseAccuracy: 75
+    range: 100
+    weaponPrefab: {fileID: 4902682818893096921, guid: 2d5fe0e026675f34990b492e44d004ff,
+      type: 3}
+    activeHandler: 0
+    inactiveHandler: 2
+    grenadeSettings:
+      blastRadius: 7
+      decreasePerWorldUnit: 3
   - id: WE_0004_000001
     weaponName: Hand Grenade
     weaponType: 4
     thumbnail: {fileID: 21300000, guid: b7763bc0d2371d4438337e9654aa18f3, type: 3}
+    rapidFire: 0
     strikeCount: 1
     delayBetweenStrike: 0
     baseDamage: 100
@@ -75,5 +147,5 @@ MonoBehaviour:
     activeHandler: 0
     inactiveHandler: 2
     grenadeSettings:
-      blastRadius: 4
+      blastRadius: 7
       decreasePerWorldUnit: 3

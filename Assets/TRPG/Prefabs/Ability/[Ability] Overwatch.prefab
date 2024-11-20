@@ -10,6 +10,11 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 2712667034718623322, guid: e4e8afbcc997b51449ee0545048545f0,
         type: 3}
+      propertyPath: <PrefabId>k__BackingField
+      value: 17
+      objectReference: {fileID: 0}
+    - target: {fileID: 2712667034718623322, guid: e4e8afbcc997b51449ee0545048545f0,
+        type: 3}
       propertyPath: <AssetPathHash>k__BackingField
       value: 17746249669196691214
       objectReference: {fileID: 0}
@@ -17,7 +22,7 @@ PrefabInstance:
         type: 3}
       propertyPath: data
       value: 
-      objectReference: {fileID: 11400000, guid: b361ac7cea98ae94baaea07e847f2b79,
+      objectReference: {fileID: 11400000, guid: 69369a386f0cc0743a8772198f8fec0b,
         type: 2}
     - target: {fileID: 6979267121137630445, guid: e4e8afbcc997b51449ee0545048545f0,
         type: 3}

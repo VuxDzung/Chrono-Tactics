@@ -30,6 +30,7 @@ namespace TRPG
         /// <summary>
         /// This represent how many times this weapon perform a strike/shoot.
         /// </summary>
+        public bool rapidFire;
         public int strikeCount = 1;
         public float delayBetweenStrike;
         public float baseDamage = 10f;
@@ -41,6 +42,16 @@ namespace TRPG
         public Handler inactiveHandler;
 
         public GrenadeSettings grenadeSettings;
+
+        public static bool IsLongRangeWeapon(WeaponType type)
+        {
+            return type == WeaponType.Pistol || type == WeaponType.Rifle || type == WeaponType.Grenade;
+        }
+
+        public static bool IsCloseRangeWeapon (WeaponType type)
+        {
+            return type == WeaponType.Sword;
+        }
     }
 
     [Serializable]

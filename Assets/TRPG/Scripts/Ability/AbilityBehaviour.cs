@@ -1,6 +1,4 @@
-using System.Collections;
-using System.Collections.Generic;
-using TRPG;
+using FishNet.Object;
 using TRPG.Unit;
 using UnityEngine;
 
@@ -29,51 +27,101 @@ namespace TRPG
         }
 
         #region Server-Side
-        public virtual void OnSelectServer(AbilityType type)
+        public void OnSelectServer(AbilityType type)
         {
-            if (!IsAbilityType(type)) return;
+            if (IsAbilityType(type)) OnSelectServer();
         }
-        public virtual void OnActivateServer(AbilityType type)
+
+        public void OnDeselectServer(AbilityType type)
         {
-            if (!IsAbilityType(type)) return;
+            if (IsAbilityType(type)) OnDeselectServer();
         }
-        public virtual void OnDeactivateServer(AbilityType type)
+
+        public void OnActivateServer(AbilityType type)
         {
-            if (!IsAbilityType(type)) return;
+            if (IsAbilityType(type)) OnActivateServer();
         }
+
+        protected virtual void OnSelectServer() { }
+        protected virtual void OnDeselectServer() { }
+        protected virtual void OnActivateServer() { }
+
+        protected virtual void OnDelayStartedServer() { }
+        protected virtual void OnDelayFinishedServer() { }
+        protected virtual void OnDurationStartedServer() { }
+        protected virtual void OnDurationFinishedServer() { }
         #endregion
 
         #region Callback
-        public virtual void OnSelectCallback(AbilityType type, bool isOwner)
+        public void OnSelectCallback(AbilityType type, bool isOwner)
         {
-            if (!IsAbilityType(type)) return;
+            Debug.Log($"{context.gameObject.name} | Ability: {type}");
+            if (IsAbilityType(type)) OnSelectCallback(isOwner);
         }
-        public virtual void OnDeselectCallback(AbilityType type, bool isOwner)
+        public void OnDeselectCallback(AbilityType type, bool isOwner)
         {
-            if (!IsAbilityType(type)) return;
+            if (IsAbilityType(type)) OnDeselectCallback(isOwner);
         }
-        public virtual void OnActivateCallback(AbilityType type, bool isOwner)
+        public void OnActivateCallback(AbilityType type, bool isOwner)
         {
-            if (!IsAbilityType(type)) return;
+            if (IsAbilityType(type)) OnActivateCallback(isOwner);
         }
+
+        protected virtual void OnSelectCallback(bool isOwner) { }
+        protected virtual void OnDeselectCallback(bool isOwner) { } 
+        protected virtual void OnActivateCallback(bool isOwner) { }
+
+        [ObserversRpc]
+        protected virtual void OnDelayStartedCallback() { }
+        [ObserversRpc]
+        protected virtual void OnDelayFinishedCallback() { }
+        [ObserversRpc]
+        protected virtual void OnDurationFinishedCallback() { }
+        [ObserversRpc]
+        protected virtual void OnDurationStartedCallback() { }
         #endregion
 
         #region Timer
-        public virtual void OnDelayStarted(AbilityType type, bool asServer)
+        public void OnDelayStarted(AbilityType type, bool asServer)
         {
-            if (!IsAbilityType(type)) return;
+            if (IsAbilityType(type))
+            {
+                if (asServer)
+                {
+                    OnDelayStartedServer();
+                    OnDelayStartedCallback();
+                }
+            }
         }
-        public virtual void OnDelayFinished(AbilityType type, bool asServer)
+        public void OnDelayFinished(AbilityType type, bool asServer)
         {
-            if (!IsAbilityType(type)) return;
+            if (IsAbilityType(type)) 
+            {
+                if (asServer)
+                {
+                    OnDelayFinishedServer();
+                    OnDelayFinishedCallback();
+                }
+            }
         }
-        public virtual void OnDurationStart(AbilityType type, bool asServer)
+        public void OnDurationStart(AbilityType type, bool asServer)
         {
-            if (!IsAbilityType(type)) return;
+            if (IsAbilityType(type))
+            {
+                OnDurationStartedServer();
+                OnDurationStartedCallback();
+            }
         }
-        public virtual void OnDurationFinished(AbilityType type, bool asServer)
+        public void OnDurationFinished(AbilityType type, bool asServer)
         {
-            if (!IsAbilityType(type)) return;
+            if (IsAbilityType(type))
+            {
+                if (asServer)
+                {
+                    OnDurationFinishedServer();
+                    OnDurationFinishedCallback();
+                }
+            }
         }
         #endregion
     }

@@ -1,5 +1,6 @@
 using FishNet.Component.Animating;
 using FishNet.Object;
+using Mono.CSharp;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -21,13 +22,16 @@ namespace TRPG.Unit
         #endregion
 
         #region Animator States
-        public static string STATE_RIFLE_FIRE = "FireRifle";
+        public static string STATE_STRONG_RECOIL_SHOT = "StrongRecoilShot";
+        public static string STATE_WEAK_RECOIL_SHOT = "WeakRecoilShot";
         public static string STATE_DEAD = "Dead";
+        public static string STATE_MELEE_ATTACK = "MeleeAttack";
+        public static string STATE_TOSS_GRENADE = "TossGrenade";
         #endregion
 
-        private Animator animator;
-        private UnitController context;
-        private NetworkAnimator nwAnimator;
+        protected Animator animator;
+        protected UnitController context;
+        protected NetworkAnimator nwAnimator;
 
         public virtual void Setup(UnitController context)
         {
@@ -36,24 +40,36 @@ namespace TRPG.Unit
             nwAnimator = GetComponent<NetworkAnimator>();
         }
 
+
         public override void Update()
         {
             base.Update();
-            if (IsOwner)
-            {
-                UpdateAnimator();
-            }
+            if (IsOwner) UpdateAnimator();
         }
 
-        public virtual void UpdateAnimator()
+        protected virtual void UpdateAnimator()
         {
             animator.SetFloat(PARAM_MOVE_MAGNITUDE, context.Motor.MoveMagnitude, 0.15f, Time.deltaTime);
         }
 
-
-        public virtual void TriggerFireAnimation()
+        public virtual void StrongRecoilShotAnimation()
         {
-            CrossFade(STATE_RIFLE_FIRE, 0.2f, LAYER_FULL_BODY);
+            CrossFade(STATE_STRONG_RECOIL_SHOT, 0.2f, LAYER_ARMS);
+        }
+
+        public virtual void WeakRecoilShotAnimation()
+        {
+            CrossFade(STATE_WEAK_RECOIL_SHOT, 0.2f, LAYER_ARMS);
+        }
+
+        public virtual void MeleeAnimation()
+        {
+            CrossFade(STATE_MELEE_ATTACK, 0.2f, LAYER_FULL_BODY);
+        }
+
+        public virtual void TossGrenadeAnimation()
+        {
+            CrossFade(STATE_TOSS_GRENADE, 0.2f, LAYER_FULL_BODY);
         }
 
         public virtual void DeadAnimation()

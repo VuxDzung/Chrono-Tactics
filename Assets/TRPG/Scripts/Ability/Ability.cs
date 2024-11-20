@@ -7,12 +7,20 @@ using TRPG.Unit;
 using UnityEngine;
 namespace TRPG
 {
+    public enum ActionPointCost
+    {
+        Half,
+        Full
+    }
+
     public enum AbilityType
     {
         None,
         Shoot,
         Overwatch,
-        Grenade
+        Grenade,
+        Move,
+        MeleeAttack
     }
 
     public enum AbilityStep
@@ -30,6 +38,7 @@ namespace TRPG
         public AnimationClip clip;
     }
 
+    [CreateAssetMenu(fileName = "AbilityData", menuName = "TRPG/Ability/Data")]
     public class Ability : ScriptableObject
     {
         [SerializeField] private AbilityType type;
@@ -44,60 +53,11 @@ namespace TRPG
         public AbilityStep[] Steps => steps;
 
         public Sprite Thumbnail => thumbnail;
+        public static int FromActionCostToInt(ActionPointCost cost)
+        {
+            if (cost == ActionPointCost.Half) return 1;
 
-        // Unified type check for all actions
-        protected bool IsAbilityType(AbilityType targetType)
-        {
-            return type == targetType;
+            else return 2;
         }
-
-        #region Server-Side
-        public virtual void OnSelectServer(AbilityType type, UnitController context)
-        {
-            if (!IsAbilityType(type)) return;
-        }
-        public virtual void OnActivateServer(AbilityType type, UnitController context)
-        {
-            if (!IsAbilityType(type)) return;
-        }
-        public virtual void OnDeactivateServer(AbilityType type, UnitController context)
-        {
-            if (!IsAbilityType(type)) return;
-        }
-        #endregion
-
-        #region Callback
-        public virtual void OnSelectCallback(AbilityType type, UnitController context, bool isOwner)
-        {
-            if (!IsAbilityType(type)) return;
-        }
-        public virtual void OnDeselectCallback(AbilityType type, UnitController context, bool isOwner)
-        {
-            if (!IsAbilityType(type)) return;
-        }
-        public virtual void OnActivateCallback(AbilityType type, UnitController context, bool isOwner)
-        {
-            if (!IsAbilityType(type)) return;
-        }
-        #endregion
-
-        #region Timer
-        public virtual void OnDelayStarted(AbilityType type, UnitController context, bool asServer)
-        {
-            if (!IsAbilityType(type)) return;
-        }
-        public virtual void OnDelayFinished(AbilityType type, UnitController context, bool asServer)
-        {
-            if (!IsAbilityType(type)) return;
-        }
-        public virtual void OnDurationStart(AbilityType type, UnitController context, bool asServer)
-        {
-            if (!IsAbilityType(type)) return;
-        }
-        public virtual void OnDurationFinished(AbilityType type, UnitController context, bool asServer)
-        {
-            if (!IsAbilityType(type)) return;
-        }
-        #endregion
     }
 }

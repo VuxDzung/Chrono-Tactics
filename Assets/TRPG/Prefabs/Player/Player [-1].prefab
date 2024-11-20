@@ -107,6 +107,7 @@ MonoBehaviour:
   unitPrefabList:
   - {fileID: 944940961020434299, guid: 0f646124c4dd6424aa2485dd4939481d, type: 3}
   - {fileID: 944940961020434299, guid: 5fb0fb0a16177d841bb471608fb1676b, type: 3}
+  - {fileID: 944940961020434299, guid: 903458cc779267e48862d6309ce2b7c9, type: 3}
 --- !u!114 &7551432906100940562
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -147,7 +148,7 @@ MonoBehaviour:
   _spectatorInterpolation: 2
   _enableTeleport: 0
   _teleportThreshold: 1
-  <PrefabId>k__BackingField: 0
+  <PrefabId>k__BackingField: 1
   <SpawnableCollectionId>k__BackingField: 0
   <AssetPathHash>k__BackingField: 1309685014511178397
   <SceneId>k__BackingField: 0

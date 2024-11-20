@@ -30,8 +30,9 @@ namespace TRPG.Unit
 
         private bool hasReachedDestination; //This field only runs on server.
 
-        public bool IsMoving => isMoving.Value;
+        public float AIMoveMagnitude => navMeshAgent.velocity.magnitude / navMeshAgent.speed;
 
+        public bool IsMoving => isMoving.Value;
 
         public virtual void Setup(UnitController context)
         {
@@ -114,6 +115,14 @@ namespace TRPG.Unit
                 return !navMeshAgent.hasPath || navMeshAgent.velocity.sqrMagnitude < 0.1f;
             }
             return false;
+        }
+
+        [Server]
+        public void RotateToDirection(Vector3 direction)
+        {
+            Quaternion targetRotation = Quaternion.LookRotation(direction, Vector3.up);
+            transform.rotation = targetRotation;
+            //transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, Time.deltaTime * lerpSpeed);
         }
     }
 }

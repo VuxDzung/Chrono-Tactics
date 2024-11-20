@@ -7,6 +7,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
+using TRPG.Unit.AI;
 
 namespace TRPG.Unit
 {
@@ -15,6 +16,7 @@ namespace TRPG.Unit
         private const string PLAYER_OBJ_NAME_FORMAT = "Player [{0}]";
         public static TRPGGameManager Instance;
 
+        [SerializeField] private AIDecisionMaker aiBrain;
         [SerializeField] private GameObject playerPrefab;
         [SerializeField] private bool addToDefaultScene = true;
 
@@ -82,7 +84,7 @@ namespace TRPG.Unit
         }
 
         [Server]
-        private void StartFirstPlayerTurn(NetworkPlayer player)
+        public void StartFirstPlayerTurn(NetworkPlayer player)
         {
             int playerIndex = nwPlayerList.IndexOf(player); 
             if (playerIndex == 0)
@@ -96,13 +98,21 @@ namespace TRPG.Unit
         }
 
         [Server]
+        public void StartFirstPlayerTurn()
+        {
+            currentPlayerIndex.Value = 0;
+            nwPlayerList[0].StartOwnerTurn();
+        }
+
+        [Server]
         public void ChangeNextPlayerTurn()
         {
             nwPlayerList[currentPlayerIndex.Value].StopOwnerTurn();
             currentPlayerIndex.Value++;
-            if (currentPlayerIndex.Value >= nwPlayerList.Count)
+            if (currentPlayerIndex.Value >= nwPlayerList.Count) // When all players has make their move, the final turn shall belong to the AI.
+            {
                 currentPlayerIndex.Value = 0;
-
+            }
             nwPlayerList[currentPlayerIndex.Value].StartOwnerTurn();
         }
 
@@ -124,6 +134,16 @@ namespace TRPG.Unit
         public NetworkPlayer GetPlayer(NetworkConnection owner)
         {
             return nwPlayerList.FirstOrDefault(player => player.OwnerId.Equals(owner.ClientId));
+        }
+
+        public List<UnitController> GetAllPlayersUnits()
+        {
+            List<UnitController> unitList = new List<UnitController> ();
+            foreach (NetworkPlayer player in nwPlayerList)
+            {
+                player.ActiveUnitList.ForEach(activeUnit => unitList.Add(activeUnit));
+            }
+            return unitList;
         }
     }
 }

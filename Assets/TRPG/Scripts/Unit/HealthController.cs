@@ -18,16 +18,18 @@ namespace TRPG
         private readonly SyncVar<float> syncCurrentHealth = new SyncVar<float>();
 
         public bool IsDead => syncCurrentHealth.Value <= 0;
+        public float CurrentHealth => syncCurrentHealth.Value;
 
-        public override void OnStartNetwork()
+        public override void OnStartServer()
         {
-            base.OnStartNetwork();
+            base.OnStartServer();
+            syncCurrentHealth.Value = maxHealth; 
         }
 
         public override void OnStartClient()
         {
             base.OnStartClient();
-            if (IsOwner)
+            if (Owner != null && IsOwner)
             {
                 Setup();
             }

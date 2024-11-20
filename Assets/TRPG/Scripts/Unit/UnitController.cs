@@ -11,8 +11,6 @@ using UnityEngine;
 
 namespace TRPG.Unit
 {
-    [RequireComponent(typeof(UnitMotor))]
-    [RequireComponent(typeof(UnitAnimationController))]
     public class UnitController : CoreNetworkBehaviour
     {
         public Action OnSelectCallback;
@@ -24,8 +22,6 @@ namespace TRPG.Unit
 
         private readonly SyncVar<bool> isSelected = new SyncVar<bool>();
         public readonly SyncVar<NetworkPlayer> UnitOwner = new SyncVar<NetworkPlayer>();
-
-        private HUD hud;
 
         public bool IsSelected => isSelected.Value;
         public UnitData Data => data;
@@ -41,9 +37,18 @@ namespace TRPG.Unit
 
         public bool HasEnoughPoint => UnitOwner.Value.HasEnoughPoint(this);
 
+        public bool IsOwnerPlayer => Owner != null && IsOwner;
+
+        public HUD Hud { get; private set; }
+
         public override void OnStartNetwork()
         {
             base.OnStartNetwork();
+            Initialized();
+        }
+
+        public virtual void Initialized()
+        {
             Motor = GetComponent<UnitMotor>();
             AnimationController = GetComponent<UnitAnimationController>();
             AbilityController = GetComponent<AbilitiesController>();
@@ -64,20 +69,19 @@ namespace TRPG.Unit
             if (Motor) Motor.OnMoveStartedCallback += StartMove;
             if (Motor) Motor.OnMoveFinishedCallback += OnReachedDestination;
 
-            Health.OnDeadCallback += AnimationController.DeadAnimation;
             Health.OnDead += OnDead;
+            Health.OnDeadCallback += AnimationController.DeadAnimation;
         }
 
         public override void OnStartClient()
         {
             base.OnStartClient();
-            if (IsOwner)
+            if (IsOwnerPlayer)
             {
-                hud = UIManager.GetUI<HUD>();
+                Hud = UIManager.GetUI<HUD>();
                 tpCamera = GetComponentInChildren<CinemachineVirtualCamera>();
                 tpCamera.enabled = false;
                 AssignUnitOwnerRef();
-                //csFogWar.instance.AddFogRevealer(new csFogWar.FogRevealer(transform, data.viewRadius, false));
             }
         }
 
@@ -88,10 +92,11 @@ namespace TRPG.Unit
         }
 
         [Server]
-        public void Select()
+        public void Select(bool callback)
         {
             isSelected.Value = true;
-            SelectCallback();
+
+            if (callback) SelectCallback();
         }
 
         [ObserversRpc]
@@ -101,10 +106,10 @@ namespace TRPG.Unit
         }
 
         [Server]
-        public void Deselect()
+        public void Deselect(bool callback)
         {
             isSelected.Value = false;
-            DeselectCallback();
+            if (callback) DeselectCallback();
         }
 
         [ObserversRpc]
@@ -116,14 +121,14 @@ namespace TRPG.Unit
         [Client]
         private void SelectOwnerCallback()
         {
-            if (IsOwner)
+            if (IsOwnerPlayer)
             {
                 selectObj.SetActive(true);
-                hud.ClearUIAbilities();
+                Hud.ClearUIAbilities();
                 AimHUD.OnFire = null;
                 AimHUD.OnCancel = null;
 
-                AbilityController.LoadAbilityToUI(hud);
+                AbilityController.LoadAbilityToUI(Hud);
                 WeaponManager.LoadWeaponUI();
 
                 if (HasEnoughPoint)
@@ -134,64 +139,73 @@ namespace TRPG.Unit
         [Client]
         private void DeselectOwnerCallback()
         {
-            if (IsOwner)
+            if (IsOwnerPlayer)
             {
-                hud.ClearUIAbilities();
+                Hud.ClearUIAbilities();
                 selectObj.SetActive(false);
                 GridManager.Singleton.DisableAllCells();
             }
         }
 
         [Server]
-        public void OnDead()
+        public virtual void OnDead()
         {
-            UnitOwner.Value.Unregister(this);
+            if (UnitOwner.Value != null) UnitOwner.Value.Unregister(this);
         }
 
         #region Locomotion 
         [Client]
         private void StartMove(bool isOwner)
         {
-            if (isOwner)
+            if (IsOwnerPlayer)
             {
-                GridManager.Singleton.DisableAllCells(); 
-                EnableTPCamera();
-                hud.HideUIAbilities();
+                GridManager.Singleton.DisableAllCells();
+                //EnableTPCamera();
+                Hud.HideUIAbilities();
             }
         }
 
         [Client]
         private void OnReachedDestination(bool isOwner)
         {
-            if (isOwner)
+            if (IsOwnerPlayer)
             {
-                DisableTPCamera();
+                //DisableTPCamera();
                 SceneCamera.Singleton.MoveTo(transform.position, Quaternion.identity);
-                hud.ShowUIAbilities();
+                Hud.ShowUIAbilities();
                 if (HasEnoughPoint)
                     EnableCellsAroundUnit();
             }
         }
 
-        [Server]
-        public bool TryMove(Vector3 destination)
+        protected virtual bool TryMove(Vector3 destination)
         {
-            if (HasEnoughPoint)
-            {
-                Vector3Int roundedDestination = MathUtil.RoundVector3(destination, 1);
-                Vector3Int roundedPos = MathUtil.RoundVector3(transform.position, 1);
+            Vector3Int roundedDestination = MathUtil.RoundVector3(destination, 1);
+            Vector3Int roundedPos = MathUtil.RoundVector3(transform.position, 1);
 
-                if (GridManager.Singleton.IsValidCell(roundedDestination))
+            if (GridManager.IsValidCell(roundedDestination))
+            {
+                if (Vector3Int.Distance(roundedPos, roundedDestination) <= data.viewRadius)
                 {
-                    if (Vector3Int.Distance(roundedPos, roundedDestination) <= data.viewRadius)
-                    {
-                        Motor.MoveTo(roundedDestination);
-                        return true;
-                    }
+                    Motor.MoveTo(roundedDestination);
+                    return true;
+                }
+                else
+                {
+                    Debug.LogWarning($"{destination} is beyond the move range");
                 }
             }
             return false;
         }
+
+        [Server]
+        public virtual bool TryMovePlayerUnit(Vector3 destination)
+        {
+            if (!HasEnoughPoint) return false;
+
+            return TryMove(destination);
+        }
+
         #endregion
 
         #region TP Camera Controller 
@@ -213,9 +227,15 @@ namespace TRPG.Unit
 
         public virtual void EnableCellsAroundUnit()
         {
-            GridManager.Singleton.EnableSurroundingCells(transform.position, data.viewRadius);
-        }
+            if (!HasEnoughPoint)
+            {
 
+            }
+            else
+            {
+                GridManager.Singleton.EnableSurroundingCells(transform.position, data.viewRadius);
+            }
+        }
         #endregion
     }
 }

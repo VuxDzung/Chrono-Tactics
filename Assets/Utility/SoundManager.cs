@@ -1,10 +1,9 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using Utils;
 
 namespace DevOpsGuy
 {
+    [RequireComponent(typeof(AudioSource))]
     public class SoundManager : M_Singleton<SoundManager>
     {
         private AudioSource source;

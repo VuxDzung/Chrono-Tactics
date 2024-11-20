@@ -243,7 +243,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 78.1, y: -121.4}
+  m_AnchoredPosition: {x: 78.1001, y: -121.400024}
   m_SizeDelta: {x: 145, y: 35}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &7816065982044232723
@@ -318,7 +318,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 155.1, y: -52.7}
+  m_AnchoredPosition: {x: 155.1001, y: -52.69995}
   m_SizeDelta: {x: 298, y: 96}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &956486295787855869
@@ -368,7 +368,6 @@ GameObject:
   - component: {fileID: 930900045068994444}
   - component: {fileID: 2752801030631676701}
   - component: {fileID: 385646874220717833}
-  - component: {fileID: 5471720569408595725}
   m_Layer: 0
   m_Name: FishyNetworkManager
   m_TagString: Untagged
@@ -442,36 +441,6 @@ MonoBehaviour:
   _playerPrefab: {fileID: 0}
   _addToDefaultScene: 1
   Spawns: []
---- !u!114 &5471720569408595725
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4752671263610685936}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1cdcee4396754c63a1574492499cffc8, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_ProtocolType: 1
-  m_UseWebSockets: 0
-  m_UseEncryption: 0
-  m_MaxPacketQueueSize: 128
-  m_MaxPayloadSize: 6144
-  m_HeartbeatTimeoutMS: 500
-  m_ConnectTimeoutMS: 1000
-  m_MaxConnectAttempts: 60
-  m_DisconnectTimeoutMS: 30000
-  ConnectionData:
-    Address: 127.0.0.1
-    Port: 7777
-    ServerListenAddress: 
-  DebugSimulator:
-    PacketDelayMS: 0
-    PacketJitterMS: 0
-    PacketDropRate: 0
-  m_MaximumClients: 4095
 --- !u!1 &4935275189136927499
 GameObject:
   m_ObjectHideFlags: 0

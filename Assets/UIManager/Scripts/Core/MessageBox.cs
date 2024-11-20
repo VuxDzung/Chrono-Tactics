@@ -6,9 +6,9 @@ namespace DevOpsGuy.GUI
 {
     public class MessageBox : Modal
     {
-        [SerializeField] private TextMeshProUGUI tmpTitle;
-        [SerializeField] private TextMeshProUGUI tmpMessage;
-        [SerializeField] private Button confirmButton;
+        [SerializeField] protected TextMeshProUGUI tmpTitle;
+        [SerializeField] protected TextMeshProUGUI tmpMessage;
+        [SerializeField] protected Button confirmButton;
 
         protected virtual void OnEnable()
         {
@@ -24,6 +24,11 @@ namespace DevOpsGuy.GUI
         {
             if (tmpTitle) tmpTitle.text = title;
             if (tmpMessage) tmpMessage.text = message;
+        }
+
+        public void SetMessage(string message)
+        {
+            SetMessage("", message);
         }
 
         protected void CloseModal()

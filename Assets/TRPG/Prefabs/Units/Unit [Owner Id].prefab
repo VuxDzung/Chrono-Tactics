@@ -644,7 +644,6 @@ MonoBehaviour:
   _componentIndexCache: 5
   _addedNetworkObject: {fileID: 4623062290997814699}
   _networkObjectCache: {fileID: 4623062290997814699}
-  range: 100
   fireTransform: {fileID: 3140382892573138335}
 --- !u!114 &972818411181016448
 MonoBehaviour:
@@ -779,19 +778,19 @@ NavMeshAgent:
   m_GameObject: {fileID: 3653012913345686984}
   m_Enabled: 1
   m_AgentTypeID: 0
-  m_Radius: 0.3
-  m_Speed: 4
-  m_Acceleration: 1200
+  m_Radius: 0.25
+  m_Speed: 3.5
+  m_Acceleration: 100
   avoidancePriority: 50
-  m_AngularSpeed: 1200
+  m_AngularSpeed: 1000
   m_StoppingDistance: 0.02
   m_AutoTraverseOffMeshLink: 1
   m_AutoBraking: 1
   m_AutoRepath: 1
-  m_Height: 1.83
+  m_Height: 1.8
   m_BaseOffset: 0
   m_WalkableMask: 4294967295
-  m_ObstacleAvoidanceType: 4
+  m_ObstacleAvoidanceType: 3
 --- !u!136 &4847263210512190200
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -1456,9 +1455,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bd6043bde05a7fc4cba197d06915c1e3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Damping: {x: 0.1, y: 0.5, z: 0.3}
+  Damping: {x: 0.5, y: 0.5, z: 0.5}
   ShoulderOffset: {x: 0.5, y: 0, z: 0}
-  VerticalArmLength: 1.6
+  VerticalArmLength: 1.5
   CameraSide: 1
   CameraDistance: 2.5
   CameraCollisionFilter:
@@ -1744,7 +1743,8 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: 95787105524477528, guid: 2f3e27eecb190e44a9af50723c394274, type: 3}
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents: []

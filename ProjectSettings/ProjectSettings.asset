@@ -807,7 +807,7 @@ PlayerSettings:
   webGLMemoryGeometricGrowthCap: 96
   webGLPowerPreference: 2
   scriptingDefineSymbols:
-    Standalone: EDGEGAP_PLUGIN_SERVERS;FISHNET;FISHNET_V4;FISHNET_STABLE_MODE
+    Standalone: EDGEGAP_PLUGIN_SERVERS;FISHNET;FISHNET_V4;FISHNET_STABLE_MODE;UNITY_PIPELINE_URP
   additionalCompilerArguments: {}
   platformArchitecture: {}
   scriptingBackend: {}

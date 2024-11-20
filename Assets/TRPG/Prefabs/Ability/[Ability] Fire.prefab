@@ -10,9 +10,19 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 2712667034718623322, guid: e4e8afbcc997b51449ee0545048545f0,
         type: 3}
+      propertyPath: <PrefabId>k__BackingField
+      value: 11
+      objectReference: {fileID: 0}
+    - target: {fileID: 2712667034718623322, guid: e4e8afbcc997b51449ee0545048545f0,
+        type: 3}
       propertyPath: <AssetPathHash>k__BackingField
       value: 12054586019445228202
       objectReference: {fileID: 0}
+    - target: {fileID: 2712667034718623322, guid: e4e8afbcc997b51449ee0545048545f0,
+        type: 3}
+      propertyPath: NetworkBehaviours.Array.data[0]
+      value: 
+      objectReference: {fileID: 1420092783643761189}
     - target: {fileID: 3454864131094739544, guid: e4e8afbcc997b51449ee0545048545f0,
         type: 3}
       propertyPath: data
@@ -102,10 +112,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c15b784563c96314382b47f58da97d3d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _componentIndexCache: 255
+  _componentIndexCache: 0
   _addedNetworkObject: {fileID: 6126199658108073963}
-  _networkObjectCache: {fileID: 0}
-  data: {fileID: 11400000, guid: d0072d67e7a6473438d14997c5bc5ded, type: 2}
+  _networkObjectCache: {fileID: 6126199658108073963}
+  data: {fileID: 11400000, guid: 32f81a2f6468ad740ab5c5febdce585d, type: 2}
 --- !u!114 &6126199658108073963 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 2712667034718623322, guid: e4e8afbcc997b51449ee0545048545f0,

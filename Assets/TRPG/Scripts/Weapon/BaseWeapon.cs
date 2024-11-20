@@ -10,8 +10,8 @@ namespace TRPG
     public class BaseWeapon : CoreNetworkBehaviour
     {
         private readonly SyncVar<Transform> netParent = new SyncVar<Transform>();
-        [SerializeField] private AudioSource m_AudioSource;
-        [SerializeField] private AudioClip m_Clip;
+        [SerializeField] protected AudioSource m_AudioSource;
+        [SerializeField] protected AudioClip m_Clip;
 
         [Server]
         public void SetParent(Transform parent)
@@ -48,7 +48,7 @@ namespace TRPG
         [Client]
         public virtual void OnDamageTarget(bool isOwner)
         {
-            m_AudioSource.PlayOneShot(m_Clip);
+            if (m_Clip != null) m_AudioSource.PlayOneShot(m_Clip);
         }
     }
 }

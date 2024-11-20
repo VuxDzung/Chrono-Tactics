@@ -10,12 +10,6 @@ using System;
 
 namespace TRPG
 {
-    public enum ActionPointCost
-    {
-        Half,
-        Full
-    }
-
     public class NetworkPlayer : CoreNetworkBehaviour
     {
         private const string UNIT_NAME_FORMAT = "Unit [Owner:{0}|ID:[{1}]]";
@@ -33,6 +27,7 @@ namespace TRPG
         private HUD hud;
 
         public bool IsOwnerTurn => isOwnerTurn.Value;
+        public List<UnitController> ActiveUnitList => unitDictionary.Keys.ToList();
 
         public Action OnPlayerLose;
         public Action OnPlayerWin;
@@ -162,18 +157,11 @@ namespace TRPG
                 SceneCamera.Singleton.Move(commandInput.MoveCameraInput.x, commandInput.MoveCameraInput.y);
         }
 
-        [Server]
         protected virtual void ChangeFireTargetInput()
         {
             if (commandInput.Tab)
             {
-                if (selectedUnit.Value != null)
-                {
-                    if (selectedUnit.Value.AbilityController.CurrentAbility == AbilityType.Shoot)
-                    {
-                        selectedUnit.Value.CombatBrain.ChangeToNextTarget();
-                    }
-                }
+                OnChangeFireTarget();
             }
         }
 
@@ -214,7 +202,7 @@ namespace TRPG
         [ServerRpc]
         private void OnChangeFireTarget()
         {
-            if (selectedUnit.Value != null)
+            if (selectedUnit.Value != null && selectedUnit.Value.AbilityController.CurrentAbility == AbilityType.Shoot)
             {
                 selectedUnit.Value.CombatBrain.ChangeToNextTarget();
             }
@@ -223,7 +211,7 @@ namespace TRPG
         [ServerRpc]
         protected virtual void OnMovePlayerUnit(Vector3 destination)
         {
-            if (selectedUnit.Value.TryMove(destination))
+            if (selectedUnit.Value.TryMovePlayerUnit(destination))
                 SpendActionPoint(selectedUnit.Value, ActionPointCost.Half);
         }
 
@@ -266,11 +254,11 @@ namespace TRPG
         protected virtual void AssignSelectedUnit(UnitController unit)
         {
             if (selectedUnit.Value != null)
-                selectedUnit.Value.Deselect();
+                selectedUnit.Value.Deselect(true);
 
             selectedUnit.Value = unit;
             if (selectedUnit.Value != null)
-                selectedUnit.Value.Select();
+                selectedUnit.Value.Select(true);
         }
 
         [Server]
@@ -303,7 +291,7 @@ namespace TRPG
         {
             isOwnerTurn.Value = false;
             commandInput.LockInput.Value = true;
-            unitDictionary.Keys.ToList().ForEach(key => key.Deselect());
+            unitDictionary.Keys.ToList().ForEach(key => key.Deselect(true));
             OnStopTurnCallback();
         }
 
@@ -363,10 +351,17 @@ namespace TRPG
         }
         #endregion
 
-        public Ray GetRay()
+        public static Ray GetRay()
         {
             Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
             return ray;
+        }
+
+        public static Vector3 GetMouseWorldPosition(MaskCategory maskCategory)
+        {
+            Physics.Raycast(GetRay(), out RaycastHit hit, SceneLayerMasks.GetLayerMaskByCategory(maskCategory));
+
+            return hit.transform ? hit.point : Vector3.zero;
         }
     }
 }

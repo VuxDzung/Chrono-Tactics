@@ -1,4 +1,5 @@
 using DevOpsGuy.GUI;
+using FishNet.Object;
 using System.Collections;
 using System.Collections.Generic;
 using TRPG.Unit;
@@ -9,24 +10,25 @@ namespace TRPG
     public class AbilityShoot : AbilityBehaviour
     {
         #region Server-Side
-        public override void OnSelectServer(AbilityType type)
+        protected override void OnSelectServer()
         {
-            base.OnSelectServer(type);
             context.CombatBrain.Scanning();
 
             if (!context.CombatBrain.HasEnemy) //Reset the ability
-            {
-                context.AbilityController.ResetDefaultAbility();
-            }
+                controller.ResetDefaultAbility();
+        }
+
+        protected override void OnActivateServer()
+        {
+            if (context.CombatBrain.HasEnemy) context.CombatBrain.Fire();
         }
 
         #endregion
 
         #region Callback
 
-        public override void OnSelectCallback(AbilityType type, bool isOwner)
-        {
-            base.OnSelectCallback(type, isOwner);
+        protected override void OnSelectCallback(bool isOwner)
+        {            
             if (isOwner)
             {
                 if (context.CombatBrain.HasEnemy)
@@ -37,14 +39,13 @@ namespace TRPG
                 }
                 else
                 {
-                    UIManager.ShowUI<MessageBoxTimer>().SetMessage("", "No enemy available!");
+                    UIManager.ShowUI<MessageBoxTimer>().SetMessage("No enemy available!");
                 }
             }
         }
 
-        public override void OnDeselectCallback(AbilityType type, bool isOwner)
+        protected override void OnDeselectCallback(bool isOwner)
         {
-            base.OnDeselectCallback(type, isOwner);
             if (isOwner)
             {
                 UIManager.HideUI<AimHUD>();
@@ -53,33 +54,24 @@ namespace TRPG
             }
         }
 
-        public override void OnActivateCallback(AbilityType type, bool isOwner)
+        protected override void OnActivateCallback(bool isOwner)
         {
-            base.OnActivateCallback(type, isOwner);
             if (isOwner)
             {
                 UIManager.HideUI<AimHUD>();
             }
         }
 
-        public override void OnActivateServer(AbilityType type)
+        protected override void OnDurationFinishedServer()
         {
-            base.OnActivateServer(type);
-            context.CombatBrain.Fire();
+            base.OnDurationFinishedServer();
+            controller.ResetDefaultAbility();
         }
 
-        public override void OnDurationFinished(AbilityType type, bool asServer)
+        protected override void OnDurationFinishedCallback()
         {
-            base.OnDurationFinished(type, asServer);
-            if (asServer)
-            {
-                context.AbilityController.ResetDefaultAbility();
-            }
-
-            if (!asServer)
-            {
-                context.DisableTPCamera();
-            }
+            context.EnableCellsAroundUnit();
+            context.DisableTPCamera();
         }
         #endregion
     }

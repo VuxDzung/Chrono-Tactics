@@ -9,7 +9,7 @@ public class GridManager : M_Singleton<GridManager>
     [SerializeField] private VisualGrid gridPrefab;
     [SerializeField] private Transform parent;
     [SerializeField] private Vector2Int gridArea = new Vector2Int(100, 100);
-    [SerializeField] private float colliderHalfCellSize = 0.45f;
+    //[SerializeField] private float colliderHalfCellSize = 0.45f;
 
     private VisualGrid[,] visualGrid2dArray;
     private Vector2Int configGridArea;
@@ -23,10 +23,13 @@ public class GridManager : M_Singleton<GridManager>
 
     private void SpawnGrid()
     {
-        visualGrid2dArray = new VisualGrid[configGridArea.x, configGridArea.y];
-        for (int y = 0; y < configGridArea.y; y++)
+        Vector3 position = transform.position;
+
+        visualGrid2dArray = new VisualGrid[(int)position.x + configGridArea.x, (int)position.z + configGridArea.y];
+        
+        for (int y = (int)position.z; y < position.z + configGridArea.y; y++)
         {
-            for (int x = 0; x < configGridArea.x; x++)
+            for (int x = (int)position.x; x < position.x + configGridArea.x; x++)
             {
                 VisualGrid grid = Instantiate(gridPrefab, new Vector3(x, 0.1f, y), Quaternion.identity);
                 grid.transform.SetParent(parent, true);
@@ -75,6 +78,15 @@ public class GridManager : M_Singleton<GridManager>
         return surroundingCells;
     }
 
+    public List<Vector3> GetSurroundingPositionList(Vector3 center, int radius, bool ignoreObstacles)
+    {
+        Vector2Int centerInt = MathUtil.RoundVector2(new Vector2(center.x, center.z), 1);
+        List<VisualGrid> availableGridList = GetSurroundingCells(centerInt, radius, ignoreObstacles);  
+        List<Vector3> positionList = new List<Vector3>();
+        availableGridList.ForEach(grid => positionList.Add(grid.transform.position));
+        return positionList;
+    }
+
     public void EnableSurroundingCells(Vector3 centerVector3, int radius)
     {
         Vector2Int center = MathUtil.RoundVector2(new Vector2(centerVector3.x, centerVector3.z), 1);
@@ -94,10 +106,61 @@ public class GridManager : M_Singleton<GridManager>
         }
     }
 
-    public bool IsValidCell(Vector3 position)
+    public static bool IsValidCell(Vector3 position)
     {
-        Collider[] obstacles = Physics.OverlapBox(position, new Vector3(colliderHalfCellSize, 0.5f, colliderHalfCellSize), Quaternion.identity, SceneLayerMasks.GetLayerMaskByCategory(MaskCategory.GridObstacle));
+        Collider[] obstacles = Physics.OverlapBox(position, new Vector3(0.45f, 0.5f, 0.45f), Quaternion.identity, SceneLayerMasks.GetLayerMaskByCategory(MaskCategory.GridObstacle));
 
         return obstacles.Length == 0;
+    }
+
+    /// <summary>
+    /// If the selected cell is occupied, try to get the surrounding cells (This is used for AI)
+    /// </summary>
+    /// <returns></returns>
+    public static Vector3 GetValidCell(Vector3 position)
+    {
+        if (!IsValidCell(position))
+        {
+            Vector3 rightOffset = new Vector3(1, 0, 0);
+            Vector3 leftOffset = new Vector3(-1, 0, 0);
+            Vector3 forwardOffset = new Vector3(0, 0, 1);
+            Vector3 backOffset = new Vector3(0, 0, -1);
+            Vector3 flOffset = new Vector3(-1, 0, 1);
+            Vector3 frOffset = new Vector3(1, 0, 1);
+            Vector3 blOffset = new Vector3(-1, 0, -1);
+            Vector3 brOffset = new Vector3(1, 0, -1);
+
+            List<Vector3> possiblePosList = new List<Vector3>();
+            possiblePosList.Add(rightOffset);
+            possiblePosList.Add(leftOffset);
+            possiblePosList.Add(forwardOffset);
+            possiblePosList.Add(backOffset);
+            possiblePosList.Add(flOffset);
+            possiblePosList.Add(frOffset);
+            possiblePosList.Add(blOffset);
+            possiblePosList.Add(brOffset);
+
+            List<Vector3> validPosList = new List<Vector3>();
+
+            possiblePosList.ForEach(pos => { 
+                if (IsValidCell(pos))
+                    validPosList.Add(pos);
+            });
+
+            if (validPosList.Count > 0)
+            {
+                return position + validPosList[Random.Range(0, validPosList.Count - 1)];
+            }
+            else
+            {
+                Debug.LogError($"No valid offset for center {position}");
+                return position;
+            }
+            
+        }
+        else
+        {
+            return position;
+        }
     }
 }
