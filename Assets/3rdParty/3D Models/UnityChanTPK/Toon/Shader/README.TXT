@@ -1,86 +1,79 @@
-﻿README_ja
+README.txt
 
-ユニティちゃんトゥーンシェーダー Ver.2.0
+# 【ユニティちゃんトゥーンシェーダー Ver.2.0.9】
+「ユニティちゃんトゥーンシェーダー」は、セル風3DCGアニメーションの制作現場での要望に応えるような形で設計された、映像志向のトゥーンシェーダーです。  
 
-「ユニティちゃんトゥーンシェーダー」は、セル風3DCGアニメーションの制作現場での要望に応えるような形で設計された、映像志向のトゥーンシェーダーです。
+ユニティちゃんトゥーンシェーダーVer.2.0では、従来の機能に加えて大幅な機能強化を行いました。  
+Ver.1.0でできる絵づくりをカバーしつつ、さらに高度なルックが実現できるようになっています。  
 
-ユニティちゃんトゥーンシェーダーVer.2.0では、従来の機能に加えて大幅な機能強化を行いました。
-Ver.1.0でできる絵づくりをカバーしつつ、さらに高度なルックが実現できるようになっています。
+### 2022/06/14：2.0.9 Release：新規機能追加    
+* リリース環境を、Unity 2019.4.31f1に変更。Unity 2020.3.x LTSでの動作確認。  
+* シングルパスインスタンシング レンダリング(ステレオインスタンシングとも呼ばれます)に対応。サポートするプラットフォームは、[Unity マニュアル](https://docs.unity3d.com/ja/2019.4/Manual/SinglePassInstancing.html)を参照してください。  
+* 本リリースより、おまけのUTS2イメージエフェクトUnityPackageはサポート外として削除しました。 
+* リアルタイムディレクショナルライトがない環境での、拡張アウトラインオブジェクトの環境ライティングへの馴染ませ具合を向上しました。  
 
-【ターゲット環境】
-Unity5.6.x もしくはそれ以降が必要です。
-本パッケージは、Unity5.6.5p1で作成されています。
-
-【iOS/OSX METALで使用する際の注意】
-iOS/OSX METALで使用する場合、CullMode=OFF（両面表示）の時に、正しい表示が出来ない場合があります。
-その場合、メッシュを両面に貼って、それぞれにCullMode=Back（背面カリング）/CullMode=Front（正面カリング）のマテリアルを設定するようにしてください。
-
-【提供ライセンス】
-「ユニティちゃんトゥーンシェーダーVer.2.0」は、UCL2.0（ユニティちゃんライセンス2.0）で提供されます。
-ユニティちゃんライセンスについては、以下を参照してください。
-http://unity-chan.com/contents/guideline/
+● **[日本語マニュアル（v.2.0.9版）](https://github.com/unity3d-jp/UnityChanToonShaderVer2_Project/blob/blob/release/legacy/2.0/Manual/UTS2_Manual_ja.md)が提供されています。合わせてご利用ください。**  
 
 
-【新規】
-2018/02/09：2.0.4：ターゲット環境を正式にUnity5.6.x以降としました。（Unity2018.1にも対応しています）
-　　　　　　　　　 コードの全面的な改修＆バグ修正の他、以下の仕様を新規に追加しました。
+## 【Unity-Chan Toon Shader Ver.2.0.9】
+Unity-Chan Toon Shader is a toon shader for video and images that is designed to meet your needs when creating cel-shaded 3DCG animations.  
 
-●Phong Tessellation対応
-　対応部分のコードは、Nora氏の https://github.com/Stereoarts/UnityChanToonShaderVer2_Tess を参考にさせていただきました。
-　Tessellationは、使えるプラットフォームが限られている上に、かなりパワフルなPC環境を要求しますので、覚悟して使ってください。
-　想定している用途は、パワフルなWindows10/DX11のマシンを使って、映像＆VR向けに使用することです。
-　Light版とあるものは、ライトをディレクショナルライト１灯に制限した代わりに軽量化したバリエーションです。
-●Positionスケーリングベースのアウトラインを搭載。
-　従来の法線反転方式だとアウトラインが切れてしまう、キューブのようなモデルに綺麗にアウトラインが出せます。
-●クリッピング系シェーダーでアウトラインのアルファ抜きに対応。
-　アルファ付きテクスチャと組み合わせた時に、背面から見てもアウトラインポリゴンがアルファに従って抜けるようにした。
-●アウトライン用テクスチャ（Outline_Tex）の搭載。
-●ハイカラー用テクスチャ（HiColor_Tex）の搭載。
-●PostProcessingStackと一緒に使うことを前提に、エミッシブカラー（Emissive_Color）およびエミッシブ用テクスチャ（Emissive_Tex）を搭載。
-　エミッシブカラー側でHDR値が設定できるので、PostProcessingStackのブルームエフェクトと組み合わせることで、エミッシブ部分を光らせることができるようになった。
+We have greatly enhanced the performance and features in Unity-Chan Toon Shader Ver. 2.0.  
+It still has the same rendering capabilities as Ver. 1.0, but now you can give your creations an even more sophisticated look.  
 
-　※今回搭載された新規テクスチャに関しても、今まで通り、必要なければ使わなくても問題ないようになっています。
+### 2022/05/23: 2.0.9 Release: new features added.    
+* Changed release environment to Unity 2019.4.31f1, tested with Unity 2020.3.x LTS.  
+* Single Pass Instanced rendering (also known as Stereo Instancing), support. See [Unity Manual](https://docs.unity3d.com/2019.4/Documentation/Manual/SinglePassInstancing.html) for supported platforms.  
+* Note that the UnityPackages for UTS2 extra image effects has been removed as unsupported from this release.  
+* Improved blending of extended outline objects with environmental lighting in environments without real-time directional lighting.  
 
-【過去の修正履歴】
-2017/06/25：2.0.3：マニュアル修正。【iOS/OSX METALで使用する際の注意】を追加。
-2017/06/19：2.0.3：Set_HighColorMask、Set_RimLightMaskの追加。機能強化の結果、Set_HighColorPositionは廃止。
-2017/06/09：2.0.2：Nintendo Switch、PlayStation 4に正式対応。モバイル軽量版の追加。その他機能強化。
-2017/05/20：2.0.1：TransClipping系シェーダーのブレンド仕様変更とリムライトに調整機能追加。
-　　　　　　　　　 上の仕様変更に伴い、トランスペアレント系シェーダーを２つ追加。
-　　　　　　　　　（ToonColor_DoubleShadeWithFeather_Transparent、ToonColor_ShadingGradeMap_Transparent）
-2017/05/07：2.0.0：最初のバージョン
+● **[English manual for v.2.0.9](https://github.com/unity3d-jp/UnityChanToonShaderVer2_Project/blob/blob/release/legacy/2.0/Manual/UTS2_Manual_en.md) is available now.**  
+
+----
+## 【重要】旧バージョンから、直接v.2.0.9へバージョンアップをする場合の注意
+
+* v.2.0.5以降は、そのままシェーダーのみ上書きアップデートをして大丈夫です。  
+* v.2.0.4.3p1以前からアップデートをする場合、シェーダーを上書きアップデートした後で、各マテリアルをプロジェクトウィンドウ内から再度選択することで、マテリアルを更新してください。BaseMapが元通りに修復されます。  
+* v.2.0.4.3p1以前からアップデートをする場合、HiColor_Powerのスライダの感度調整をした影響が出る場合があります。以下に従って調整をしてください。  
+1. Is_SpecularToHighColor=OFF/Is_BlendAddToHiColor=0FFの場合には、HiColor_Powerの値を今までよりも低めに調整してください。  
+2. Is_SpecularToHighColor=ONで利用している場合には、特に修正する必要はありません。  
 
 
-最新バージョン：2.0.4
-最終リリース日：2018.02.02
-カテゴリー：3D
-形式：zip
+## [Important] Note on upgrading to version 2.0.9 directly
+
+* In v.2.0.5 or later, you can overwrite and update only the shader.  
+* When updating from v.2.0.4.3p1 or earlier, update the materials by selecting each material again from within the project window after overwriting and updating the shader. BaseMap is restored as it was.  
+* When updating from v.2.0.4.3p1 or earlier, the sensitivity of the slider of HiColor_Power may be affected. Please adjust according to the following.  
+1. If Is_SpecularToHighColor = OFF / Is_BlendAddToHiColor = 0FF, adjust the HiColor_Power value lower than before.  
+2. If you use Is_SpecularToHighColor = ON, there is no need to modify it.  
+
+-----
+## 【ターゲット環境】
+* UTS2シェーダー本体およびUTS2マテリアルは、Unity 5.6.7f1以降対応。（Unity 2019.4.31f1以降の使用を推奨します）  
+* サンプルシーンを正常に再生するには、Unity 2019.4.31f1 もしくはそれ以降が必要です。  
+* Unity 2019.4.31f1からUnity 2020.3.34f1、Unity 2021.3.3f1、Unity2022.1.1f1までの動作確認が終了しています。  
+* 本パッケージは、Unity 2019.4.31f1で作成されています。  
+
+### 【Target Environment】
+* UTS2 shader itself and UTS2 materials are compatible with Unity 5.6.7f1 or later. (Unity 2019.4.31f1 or later is recommended)  
+* Unity 2019.4.31f1 or later is required to properly play the sample scenes.  
+* Unity 2019.4.31f1 through Unity 2020.3.34f1, Unity 2021.3.3f1, and Unity 2022.1.1f1 have been tested.  
+* This package was created with Unity 2019.4.31f1.  
+
+-----
+## 【提供ライセンス】
+「ユニティちゃんトゥーンシェーダーVer.2.0」は、UCL2.0（ユニティちゃんライセンス2.0）で提供されます。  
+ユニティちゃんライセンスについては、以下を参照してください。  
+https://unity-chan.com/contents/guideline/
+
+### 【License】
+Unity-Chan Toon Shader 2.0 is provided under the Unity-Chan License 2.0 terms.  
+Please refer to the following link for information regarding the Unity-Chan License.  
+https://unity-chan.com/contents/guideline_en/
 
 
-//------------------------------
-README_en
-
-Unity-Chan Toon Shader Ver.2.0
-
-Unity-Chan Toon Shader is a toon shader for images and video that is designed to meet your needs when creating cel-shaded 3DCG animations.
-
-We have greatly enhanced performance in Unity-Chan Toon Shader Ver. 2.0.
-It still has the same rendering capabilities as Ver. 1.0, but you can now create an even more sophisticated look.
-
-【Target Environment】
-Require Unity 5.6.x or later.
-※As a result responding to Nintendo Switch platform, if using with Unity 5.5.x, some errors(warnings) appear in the shader, but there is no problem in operation.
-
-New!【Using with iOS/OSX METAL】
-When using with iOS / OSX METAL, correct display may not be possible when CullMode = OFF (double-sided drawing).
-In that case, make the meshes on both sides and set materials of CullMode = Back (back-face culling) / CullMode = Front (front-face culling) for each.
-
-【License】
-Unity-Chan Toon Shader 2.0 is provided under the Unity-Chan License 2.0 terms.
-Please refer to the following link for information regarding the Unity-Chan License.
-http://unity-chan.com/contents/guideline/
-
-Latest Version: 2.0.3
-Update: 2017.06.25
-Category: 3D
-File format: zip
+-----
+Latest Version: 2.0.9 Release
+Update: 2022/06/14  
+Category: 3D  
+File format: zip/unitypackage  
