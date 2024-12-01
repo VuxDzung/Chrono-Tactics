@@ -6,6 +6,7 @@ using FishNet.Object.Synchronizing;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using TheKistuneStudio;
 using Unity.VisualScripting;
 using UnityEngine;
 
@@ -23,12 +24,14 @@ namespace TRPG.Unit
         private readonly SyncVar<bool> isSelected = new SyncVar<bool>();
         public readonly SyncVar<NetworkPlayer> UnitOwner = new SyncVar<NetworkPlayer>();
 
+        private UnitProfile _profile;
+
         public bool IsSelected => isSelected.Value;
         public UnitData Data => data;
 
         public HealthController Health {  get; private set; }
         public BoneSnapController BoneController { get; private set; }  
-        public UnitMotor Motor { get; private set; }
+        public NetworkCC CC { get; private set; }
         public UnitAnimationController AnimationController { get; private set; }
         public AbilitiesController AbilityController { get; private set; }
         
@@ -41,6 +44,15 @@ namespace TRPG.Unit
 
         public HUD Hud { get; private set; }
 
+        public UnitProfile Profile
+        {
+            get
+            {
+                if (_profile == null) _profile = DataManager.Singleton.UnitConfig.GetUnitProfileById(data.id);
+                return _profile;
+            }
+        }
+
         public override void OnStartNetwork()
         {
             base.OnStartNetwork();
@@ -49,7 +61,7 @@ namespace TRPG.Unit
 
         public virtual void Initialized()
         {
-            Motor = GetComponent<UnitMotor>();
+            CC = GetComponent<NetworkCC>();
             AnimationController = GetComponent<UnitAnimationController>();
             AbilityController = GetComponent<AbilitiesController>();
             CombatBrain = GetComponent<UnitCombatBrain>();
@@ -57,7 +69,7 @@ namespace TRPG.Unit
             WeaponManager = GetComponent<WeaponManager>();
             Health = GetComponent<HealthController>();
 
-            if (Motor) Motor.Setup(this);
+            if (CC) CC.Setup(this);
             if (AnimationController) AnimationController.Setup(this);
             if (AbilityController) AbilityController.Setup(this);
             if (CombatBrain) CombatBrain.Setup(this);
@@ -66,11 +78,11 @@ namespace TRPG.Unit
             OnSelectCallback += SelectOwnerCallback;
             OnDeselectCallback += DeselectOwnerCallback;
 
-            if (Motor) Motor.OnMoveStartedCallback += StartMove;
-            if (Motor) Motor.OnMoveFinishedCallback += OnReachedDestination;
+            if (CC) CC.OnMoveStartedCallback += StartMove;
+            if (CC) CC.OnMoveFinishedCallback += OnReachedDestination;
 
             Health.OnDead += OnDead;
-            Health.OnDeadCallback += AnimationController.DeadAnimation;
+            Health.OnDeadCallback += OnDeadCallback;
         }
 
         public override void OnStartClient()
@@ -78,7 +90,7 @@ namespace TRPG.Unit
             base.OnStartClient();
             if (IsOwnerPlayer)
             {
-                Hud = UIManager.GetUI<HUD>();
+                Hud = UIManager.GetUIStatic<HUD>();
                 tpCamera = GetComponentInChildren<CinemachineVirtualCamera>();
                 tpCamera.enabled = false;
                 AssignUnitOwnerRef();
@@ -88,7 +100,7 @@ namespace TRPG.Unit
         [ServerRpc]
         private void AssignUnitOwnerRef()
         {
-            UnitOwner.Value = TRPGGameManager.Instance.GetPlayer(Owner);
+            UnitOwner.Value = NetworkPlayerManager.Instance.GetPlayer(Owner);
         }
 
         [Server]
@@ -123,6 +135,7 @@ namespace TRPG.Unit
         {
             if (IsOwnerPlayer)
             {
+                SceneCamera.Singleton.MoveTo(transform.position, Quaternion.identity);
                 selectObj.SetActive(true);
                 Hud.ClearUIAbilities();
                 AimHUD.OnFire = null;
@@ -151,6 +164,13 @@ namespace TRPG.Unit
         public virtual void OnDead()
         {
             if (UnitOwner.Value != null) UnitOwner.Value.Unregister(this);
+            GetComponent<CapsuleCollider>().enabled = false;
+        }
+
+        public virtual void OnDeadCallback()
+        {
+            AnimationController.DeadAnimation();
+            GetComponent<CapsuleCollider>().enabled = false;
         }
 
         #region Locomotion 
@@ -162,6 +182,7 @@ namespace TRPG.Unit
                 GridManager.Singleton.DisableAllCells();
                 //EnableTPCamera();
                 Hud.HideUIAbilities();
+                selectObj.SetActive(false);
             }
         }
 
@@ -173,6 +194,7 @@ namespace TRPG.Unit
                 //DisableTPCamera();
                 SceneCamera.Singleton.MoveTo(transform.position, Quaternion.identity);
                 Hud.ShowUIAbilities();
+                selectObj.SetActive(true);
                 if (HasEnoughPoint)
                     EnableCellsAroundUnit();
             }
@@ -187,7 +209,7 @@ namespace TRPG.Unit
             {
                 if (Vector3Int.Distance(roundedPos, roundedDestination) <= data.viewRadius)
                 {
-                    Motor.MoveTo(roundedDestination);
+                    CC.SetDestination(roundedDestination);
                     return true;
                 }
                 else

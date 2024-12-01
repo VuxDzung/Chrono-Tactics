@@ -3,12 +3,13 @@ using System.Collections.Generic;
 using UnityEngine;
 using Utils;
 using UnityEngine.EventSystems;
+using UnityEngine.SceneManagement;
+using Unity.VisualScripting;
 
 namespace DevOpsGuy.GUI
 {
     public class UIManager : M_Singleton<UIManager>
     {
-
         [SerializeField]
         private Panel defaultPanel;
         [SerializeField]
@@ -22,18 +23,17 @@ namespace DevOpsGuy.GUI
         public SceneLoader Load => loader;
         public UIBehaviour CurrentUI => currentUI;
 
-        protected override void Awake()
+        private void Start()
         {
-            base.Awake();
-
             loader = GetComponentInChildren<SceneLoader>();
-
+            uiCache.Clear();
             // Find all UIBase components in the scene and register them
             UIBehaviour[] components = GetComponentsInChildren<UIBehaviour>();
             foreach (var component in components)
                 RegisterUIComponent(component);
 
             HideAll();
+            Debug.Log($"UIManager.Start.Scene: {SceneManager.GetActiveScene().name}");
 
             if (defaultPanel != null) ShowUI(defaultPanel);
 
@@ -56,12 +56,24 @@ namespace DevOpsGuy.GUI
             }
         }
 
-        public static void HideAll()
+        public static void HideAll(bool ignoreFadePanel)
         {
             foreach (var ui in uiCache)
             {
-                ui.Value.Hide();
+                if (ui.Value != null)
+                {
+                    if (ignoreFadePanel)
+                    {
+                        if (ui.Value is FadablePanel) continue;
+                    }
+                    ui.Value.Hide();
+                }
             }
+        }
+
+        public static void HideAll()
+        {
+            HideAll(true);
         }
 
         public void RegisterUIComponent(UIBehaviour component)
@@ -74,7 +86,7 @@ namespace DevOpsGuy.GUI
             }
         }
 
-        public static T GetUI<T>() where T : UIBehaviour
+        public T GetUI<T>() where T : UIBehaviour
         {
             Type type = typeof(T);
             if (uiCache.TryGetValue(type, out UIBehaviour component))
@@ -82,6 +94,11 @@ namespace DevOpsGuy.GUI
                 return component as T;
             }
             return null;
+        } 
+
+        public static T GetUIStatic<T>() where T : UIBehaviour
+        {
+            return Singleton.GetUI<T>();
         }
 
         public void ShowUI(UIBehaviour _ui)
@@ -129,10 +146,11 @@ namespace DevOpsGuy.GUI
             }
         }
 
-        public static T ShowUI<T>() where T : UIBehaviour
+        public T ShowUI<T>() where T : UIBehaviour
         {
             T ui = GetUI<T>();
-            if (ui != null) {
+            if (ui != null)
+            {
                 currentUI = ui;
                 Cursor.lockState = currentUI.CursorMode;
                 ui.Show();
@@ -142,14 +160,26 @@ namespace DevOpsGuy.GUI
                 Debug.Log($"<color=red>UI of type {typeof(T)} is null!</color>");
             }
             return ui;
+
         }
 
-        public static void HideUI<T>() where T : UIBehaviour
+        public static T ShowUIStatic<T>() where T : UIBehaviour
+        {
+            return Singleton.ShowUI<T>();
+        }
+
+        public void HideUI<T>() where T : UIBehaviour
         {
             T ui = GetUI<T>();
-            if (ui != null) {
+            if (ui != null)
+            {
                 ui.Hide();
             }
+        }
+
+        public static void HideUIStatic<T>() where T : UIBehaviour
+        {
+            Singleton.HideUI<T>();
         }
 
         #region Miscs

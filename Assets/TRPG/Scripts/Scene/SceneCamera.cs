@@ -29,7 +29,7 @@ namespace TRPG
 
         public virtual void MoveTo(Vector3 position, Quaternion rotation)
         {
-            StartCoroutine(LerpTransformCoroutine(transform, position, Quaternion.identity, false));
+            StartCoroutine(LerpTransformCoroutine(transform, position, rotation, false));
         }
 
         private IEnumerator LerpTransformCoroutine(Transform targetTransform, Vector3 position, Quaternion quaternion, bool lerpLocal)

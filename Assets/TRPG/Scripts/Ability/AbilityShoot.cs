@@ -2,6 +2,7 @@ using DevOpsGuy.GUI;
 using FishNet.Object;
 using System.Collections;
 using System.Collections.Generic;
+using System.Globalization;
 using TRPG.Unit;
 using UnityEngine;
 
@@ -9,46 +10,61 @@ namespace TRPG
 {
     public class AbilityShoot : AbilityBehaviour
     {
+        public override void Initialized(AbilitiesController controller, UnitController context)
+        {
+            base.Initialized(controller, context);
+            context.CombatBrain.OnScanningComplete += Scanned;
+            context.CombatBrain.OnScanningCompleteCallback += ScannedCallback;
+        }
+
+
         #region Server-Side
         protected override void OnSelectServer()
         {
-            context.CombatBrain.Scanning();
-
-            if (!context.CombatBrain.HasEnemy) //Reset the ability
-                controller.ResetDefaultAbility();
+            context.CombatBrain.Scanning();                
         }
 
         protected override void OnActivateServer()
         {
-            if (context.CombatBrain.HasEnemy) context.CombatBrain.Fire();
+            context.CombatBrain.Fire();
+        }
+
+        private void Scanned(bool hasTarget)
+        {
+            if (!hasTarget) controller.ResetDefaultAbility();
         }
 
         #endregion
 
         #region Callback
 
-        protected override void OnSelectCallback(bool isOwner)
-        {            
-            if (isOwner)
+        private void ScannedCallback(bool hasTarget, bool asOwner)
+        {
+            if (asOwner)
             {
-                if (context.CombatBrain.HasEnemy)
+                if (hasTarget)
                 {
-                    UIManager.ShowUI<AimHUD>();
-                    context.EnableTPCamera();
+                    //UIManager.ShowUIStatic<AimHUD>();
+                    //context.EnableTPCamera();
                     GridManager.Singleton.DisableAllCells();
                 }
                 else
                 {
-                    UIManager.ShowUI<MessageBoxTimer>().SetMessage("No enemy available!");
+                    UIManager.ShowUIStatic<MessageBoxTimer>().SetMessage("No enemy available!");
                 }
             }
+        }
+
+        protected override void OnSelectCallback(bool isOwner)
+        {            
+
         }
 
         protected override void OnDeselectCallback(bool isOwner)
         {
             if (isOwner)
             {
-                UIManager.HideUI<AimHUD>();
+                UIManager.HideUIStatic<AimHUD>();
                 context.DisableTPCamera();
                 context.EnableCellsAroundUnit();
             }
@@ -58,7 +74,7 @@ namespace TRPG
         {
             if (isOwner)
             {
-                UIManager.HideUI<AimHUD>();
+                UIManager.HideUIStatic<AimHUD>();
             }
         }
 
@@ -66,12 +82,6 @@ namespace TRPG
         {
             base.OnDurationFinishedServer();
             controller.ResetDefaultAbility();
-        }
-
-        protected override void OnDurationFinishedCallback()
-        {
-            context.EnableCellsAroundUnit();
-            context.DisableTPCamera();
         }
         #endregion
     }

@@ -12,6 +12,8 @@ public class CoreNetworkBehaviour : NetworkBehaviour
         Yellow,
     }
     public bool IsServerMachine => OwnerId == -1;
+    public new bool IsHost => IsClientInitialized && IsServerInitialized;
+
 
     public virtual void Update()
     {
@@ -44,5 +46,11 @@ public class CoreNetworkBehaviour : NetworkBehaviour
         }
 
         Debug.Log($"<color={color}>{label}:</color> {message}");
+    }
+
+    public void ForceActivate()
+    {
+        if (!gameObject.activeSelf)
+            gameObject.SetActive(true);
     }
 }

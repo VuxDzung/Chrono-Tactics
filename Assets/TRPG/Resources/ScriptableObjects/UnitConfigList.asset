@@ -1,0 +1,35 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 908d1d7ca9e2e174a955fc06920cec9c, type: 3}
+  m_Name: UnitConfigList
+  m_EditorClassIdentifier: 
+  unitProfileList:
+  - id: UN_0001_000001
+    unitName: Kohaku
+    thumbnail: {fileID: 21300000, guid: 5ee325c928d72b24e9573497d05648eb, type: 3}
+    model: {fileID: 1962382155877706, guid: 7ce6a9e3f59d36d47aa5351a5ab816b7, type: 3}
+    prefab: {fileID: 944940961020434299, guid: 0f646124c4dd6424aa2485dd4939481d, type: 3}
+  - id: UN_0001_000002
+    unitName: Yuko
+    thumbnail: {fileID: 21300000, guid: 20b2c0ef9c818dc45812a19a2cf7fe54, type: 3}
+    model: {fileID: 1213271810162876, guid: 324429d3a4c2cbf4b9fc0717102e200d, type: 3}
+    prefab: {fileID: 944940961020434299, guid: 5fb0fb0a16177d841bb471608fb1676b, type: 3}
+  - id: UN_0001_000003
+    unitName: Misaki
+    thumbnail: {fileID: 21300000, guid: 1fa2b6d44cd362448a33802f82dd2a1d, type: 3}
+    model: {fileID: 1255511478710196, guid: 751f450271ff689448be8ffe043bcf64, type: 3}
+    prefab: {fileID: 944940961020434299, guid: 903458cc779267e48862d6309ce2b7c9, type: 3}
+  - id: UN_0001_000004
+    unitName: Kagura
+    thumbnail: {fileID: 21300000, guid: ee3e2a24d83a5634eb9d99321cbef5fc, type: 3}
+    model: {fileID: 5102316048502176271, guid: 880a518aa46104747b2bd3d1187c4c9d, type: 3}
+    prefab: {fileID: 944940961020434299, guid: a2e7e11950a346a4e9d36a3cd2f52099, type: 3}

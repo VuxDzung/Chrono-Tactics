@@ -49,7 +49,7 @@ namespace TRPG.Unit
 
         protected virtual void UpdateAnimator()
         {
-            animator.SetFloat(PARAM_MOVE_MAGNITUDE, context.Motor.MoveMagnitude, 0.15f, Time.deltaTime);
+            animator.SetFloat(PARAM_MOVE_MAGNITUDE, context.CC.MoveMagnitude, 0.15f, Time.deltaTime);
         }
 
         public virtual void StrongRecoilShotAnimation()

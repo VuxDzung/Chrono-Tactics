@@ -20,6 +20,8 @@ namespace DevOpsGuy.GUI
 
         protected UIManager manager;
 
+        public bool IsOpen => gameObject.activeSelf;
+
         public virtual void Setup(UIManager manager)
         {
             this.manager = manager;
@@ -35,13 +37,19 @@ namespace DevOpsGuy.GUI
         }
 
         public virtual void Show() {
-            gameObject.SetActive(true);
-            OnShow?.Invoke();
+            if (gameObject)
+            {
+                gameObject.SetActive(true);
+                OnShow?.Invoke();
+            }
         }
 
         public virtual void Hide() {
-            gameObject.SetActive(false);
-            OnHide?.Invoke();
+            if (gameObject)
+            {
+                gameObject.SetActive(false);
+                OnHide?.Invoke();
+            }
         }
     }
 }

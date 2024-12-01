@@ -68,7 +68,7 @@ namespace TRPG.Unit
             }
             else if (hasReachedDestination && !HasReachedDestination())
             {
-                // Reset if the agent has a new destination
+                // Reset if the agent has a new destination [Dung]
                 hasReachedDestination = false;
             }
         }
@@ -77,7 +77,7 @@ namespace TRPG.Unit
         public override void OnClientUpdate()
         {
             base.OnClientUpdate();
-            // Interpolate position and rotation for smooth movement on the client side
+            // Interpolate position and rotation for smooth movement on the client side [Dung]
             if (IsMoving)
             {
                 transform.position = Vector3.Lerp(transform.position, syncPosition.Value, Time.deltaTime * lerpSpeed);
@@ -108,10 +108,10 @@ namespace TRPG.Unit
 
         private bool HasReachedDestination()
         {
-            // Check if the path calculation is complete and the agent is close enough to the destination
+            // Check if the path calculation is complete and the agent is close enough to the destination [Dung]
             if (!navMeshAgent.pathPending && navMeshAgent.remainingDistance <= navMeshAgent.stoppingDistance)
             {
-                // Ensure the agent is not still moving
+                // Ensure the agent is not still moving [Dung]
                 return !navMeshAgent.hasPath || navMeshAgent.velocity.sqrMagnitude < 0.1f;
             }
             return false;

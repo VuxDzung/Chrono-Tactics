@@ -6,9 +6,11 @@ using Utils;
 public class GridManager : M_Singleton<GridManager>
 {
     private const string GRID_NAME_FORMAT = "Grid ({0}, {1})";
+    [SerializeField] private bool deselectAtStart = true;
     [SerializeField] private VisualGrid gridPrefab;
     [SerializeField] private Transform parent;
     [SerializeField] private Vector2Int gridArea = new Vector2Int(100, 100);
+    [SerializeField] private Vector3 gridOffset = Vector3.zero;
     //[SerializeField] private float colliderHalfCellSize = 0.45f;
 
     private VisualGrid[,] visualGrid2dArray;
@@ -31,11 +33,11 @@ public class GridManager : M_Singleton<GridManager>
         {
             for (int x = (int)position.x; x < position.x + configGridArea.x; x++)
             {
-                VisualGrid grid = Instantiate(gridPrefab, new Vector3(x, 0.1f, y), Quaternion.identity);
+                VisualGrid grid = Instantiate(gridPrefab, new Vector3(x, transform.position.y, y) + gridOffset, Quaternion.identity);
                 grid.transform.SetParent(parent, true);
                 grid.transform.name = string.Format(GRID_NAME_FORMAT, x, y);
                 visualGrid2dArray[x, y] = grid;
-                visualGrid2dArray[x, y].Deselect();
+                if (deselectAtStart) visualGrid2dArray[x, y].Deselect();
             }
         }
     }

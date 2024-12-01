@@ -19,10 +19,10 @@ namespace TRPG.Unit
         public Action<AbilityType, bool> OnDeselectAbilityClient;
         public Action<AbilityType, bool> OnActivateAbilityClient;
 
-        public Action<AbilityType, bool> OnDelayStarted;
-        public Action<AbilityType, bool> OnDelayFinished;
-        public Action<AbilityType, bool> OnDurationStarted;
-        public Action<AbilityType, bool> OnDurationFinished;
+        public Action<AbilityType, bool, bool> OnDelayStarted;
+        public Action<AbilityType, bool, bool> OnDelayFinished;
+        public Action<AbilityType, bool, bool> OnDurationStarted;
+        public Action<AbilityType, bool, bool> OnDurationFinished;
 
         [SerializeField] protected List<AbilityBehaviour> abilityBehaviourList = new List<AbilityBehaviour>();
 
@@ -106,7 +106,7 @@ namespace TRPG.Unit
 
             if (!context.IsSelected) return;
 
-            if (!context.HasEnoughPoint || context.Motor.IsMoving) return;
+            if (!context.HasEnoughPoint || context.CC.IsMoving) return;
 
             Ability queryAbility = abilityBehaviourList.FirstOrDefault(a => a.Data.Type == type)?.Data;
             currentAbility.Value = type;
@@ -236,27 +236,26 @@ namespace TRPG.Unit
 
         public virtual void OnDelayTimerStarted(bool asServer)
         {
-            OnDelayStarted?.Invoke(currentAbility.Value, asServer);
+            OnDelayStarted?.Invoke(currentAbility.Value, asServer, IsOwner);
         }
 
         public virtual void OnDelayTimerFinished(bool asServer)
         {
             if (asServer)
                 durationTimer.StartTimer(_duration);
-            OnDelayFinished?.Invoke(currentAbility.Value, asServer);
+            OnDelayFinished?.Invoke(currentAbility.Value, asServer, IsOwner);
         }
 
         public virtual void OnDurationTimerStarted(bool asServer)
         {
-            OnDurationStarted?.Invoke(currentAbility.Value, asServer);
+            OnDurationStarted?.Invoke(currentAbility.Value, asServer, IsOwner);
         }
 
         public virtual void OnDurationTimerFinished(bool asServer)
         {
-            OnDurationFinished?.Invoke(currentAbility.Value, asServer);
             if (asServer)
             {
-                //After finish the skill, reset all the flag variables back to default.
+                //After finish the skill, reset all the flag variables back to default [Dung].
                 currentAbility.Value = AbilityType.None;
             }
             else
@@ -264,8 +263,11 @@ namespace TRPG.Unit
                 if (IsOwner)
                 {
                     context.Hud.ShowUIAbilities();
+                    context.EnableCellsAroundUnit();
+                    context.DisableTPCamera();
                 }
             }
+            OnDurationFinished?.Invoke(currentAbility.Value, asServer, IsOwner);
         }
         #endregion
     }

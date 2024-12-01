@@ -54,10 +54,5 @@ namespace TRPG.Unit
             context.CombatBrain.IsGrenadeAbility.Value = false;
             context.AbilityController.ResetDefaultAbility();
         }
-
-        protected override void OnDurationFinishedCallback()
-        {
-            context.EnableCellsAroundUnit();
-        }
     }
 }

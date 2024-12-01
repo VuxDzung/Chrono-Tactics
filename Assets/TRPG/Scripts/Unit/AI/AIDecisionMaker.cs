@@ -88,7 +88,7 @@ namespace TRPG.Unit.AI
 
             if (currentAIUnit == null) yield break;
 
-            if (currentAIUnit.AbilityController.HasActiveAbility || currentAIUnit.Motor.IsMoving)
+            if (currentAIUnit.AbilityController.HasActiveAbility || currentAIUnit.CC.IsMoving)
             {
                 yield return new WaitForSeconds(0.5f);
                 StartCoroutine(DelayBeforeDecide());

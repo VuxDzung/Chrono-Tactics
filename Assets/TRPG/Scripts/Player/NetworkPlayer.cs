@@ -7,6 +7,7 @@ using FishNet.Connection;
 using System.Linq;
 using System.Collections.Generic;
 using System;
+using System.Collections;
 
 namespace TRPG
 {
@@ -14,8 +15,8 @@ namespace TRPG
     {
         private const string UNIT_NAME_FORMAT = "Unit [Owner:{0}|ID:[{1}]]";
 
+        [SerializeField] private UnitConfigList unitConfig;
         [SerializeField] private CommandInputManager commandInput;
-        [SerializeField] private List<UnitController> unitPrefabList;
 
         private const int DEFAULT_ACTION_POINT = 2;
 
@@ -33,28 +34,39 @@ namespace TRPG
         public Action OnPlayerWin;
         public Action OnPlayerLoseCallback;
         public Action OnPlayerWinCallback;
+        
+        private void Awake()
+        {
+            unitDictionary.OnChange += _ActiveUnits_OnChange;
+        }
+
+        private void OnDestroy()
+        {
+            unitDictionary.OnChange -= _ActiveUnits_OnChange;
+        }
 
         public override void OnStartClient()
         {
             base.OnStartClient();
             if (IsOwner)
             {
-                hud = UIManager.GetUI<HUD>();
+                hud = UIManager.GetUIStatic<HUD>();
 
-                HUD.OnNextUnit += ChangeNextUnit;
-                HUD.OnPrevUnit += ChangePrevUnit;
-                HUD.OnEndTurn += EndTurn;
+                HUD.OnNextUnit += ChangeNextUnit_RPC_Server;
+                HUD.OnPrevUnit += ChangePrevUnit_RPC_Server;
+                HUD.OnEndTurn += EndTurn_RPC_Server;
+                HUD.OnSurrender += Surrender;
 
                 MessageBoxTimer.OnShow += hud.HideUIAbilities;
                 MessageBoxTimer.OnHide += hud.ShowUIAbilities;
 
                 switch (OwnerId)
                 {
-                    case 0:
+                    case 1:
                         SceneCamera.Singleton.MoveTo(SceneContextManager.S.Player1CamPos.position, Quaternion.identity);
                         break;
-                    case 1:
-                        SceneCamera.Singleton.MoveTo(SceneContextManager.S.Player2CamPos.position, SceneCamera.Singleton.GetRotationHandler(180));
+                    case 2:
+                        SceneCamera.Singleton.MoveTo(SceneContextManager.S.Player2CamPos.position, Quaternion.LookRotation(-Vector3.forward));
                         break;
                 }
             }
@@ -85,17 +97,22 @@ namespace TRPG
         }
 
         [Server]
-        public virtual void Initialized(SpawnArea spawnArea, NetworkConnection owner)
+        public virtual void Initialized(SpawnArea spawnArea, NetworkConnection owner, string[] playerUnitIDArr)
         {
-            unitPrefabList.ForEach(unitPrefab => {
-                UnitController unit = Instantiate(unitPrefab, spawnArea.GetPoint().transform.position, spawnArea.GetPoint().rotation);
+            foreach (var unitId in playerUnitIDArr)
+            {
+                if (string.IsNullOrEmpty(unitId)) continue;
+
+                UnitProfile profile = unitConfig.GetUnitProfileById(unitId);
+                UnitController unit = Instantiate(profile.prefab, spawnArea.GetPoint().transform.position, spawnArea.GetPoint().rotation);
                 unit.gameObject.name = string.Format(UNIT_NAME_FORMAT, OwnerId, unitDictionary.Count);
                 ServerManager.Spawn(unit.gameObject, owner);
 
                 RegisterUnit(unit);
 
                 spawnArea.IncreasePointIndex();
-            });
+            }
+
             currentUnitIndex.Value = 0;
         }
 
@@ -109,9 +126,68 @@ namespace TRPG
         }
 
         [Server]
-        public bool Unregister(UnitController unit)
+        public void Unregister(UnitController unit)
         {
-            return unitDictionary.Remove(unit);
+            if (unitDictionary.Remove(unit))
+            {
+                if (AllUnitAreDead())
+                {
+                    OnDefeat();
+                }
+            }
+        }
+
+        public void Surrender()
+        {
+            // Show the Defeat UI.
+            UIManager.ShowUIStatic<MessageBox>().SetMessage("DEFEATED", "Good luck next time!");
+
+            Surrender_RPC_Server();
+        }
+
+        [ServerRpc]
+        private void Surrender_RPC_Server()
+        {
+            OnDefeat();
+        }
+
+        [Server]
+        public void OnDefeat()
+        {
+            NetworkPlayer competitor = NetworkPlayerManager.Instance.GetTheOtherPlayer(this);
+
+            if (competitor != null)
+                competitor.OnWin(competitor.Owner);
+
+            StartCoroutine(LoadBackToMenuCoroutine());
+        }
+
+        [Server]
+        public void OnWin(NetworkConnection winner)
+        {
+            OnWinCallback(winner);
+        }
+
+        /// <summary>
+        /// Show the win UI for the winner.
+        /// </summary>
+        [TargetRpc]
+        public void OnWinCallback(NetworkConnection receiver)
+        {
+            if (receiver.ClientId == Owner.ClientId)
+            {
+                UIManager.GetUIStatic<MessageBox>().SetMessage("Victory", "You're a GOAT");
+            }
+        }
+
+        [Server]
+        private IEnumerator LoadBackToMenuCoroutine()
+        {
+            NetworkPlayerManager.Instance.networkSceneAction.Value = ChangeSceneAction.Disconnect;
+
+            yield return new WaitForSeconds(3);
+            Debug.Log("Start Load Back To Menu scene.");
+            NetworkSceneLoader.Singleton.LoadScene(SceneConfig.SCENE_DESERT_MAP, SceneConfig.SCENE_MENU);
         }
 
         protected virtual void SelectUnitInput()
@@ -133,11 +209,12 @@ namespace TRPG
                 Physics.Raycast(GetRay(), out RaycastHit hit, SceneLayerMasks.GetLayerMaskByCategory(MaskCategory.Ground));
                 if (hit.transform && selectedUnit.Value != null)
                 {
-                    OnMovePlayerUnit(hit.point);
+                    MoveUnitTo_RPC_Server(hit.point);
                 }
             }
         }
 
+        [Client]
         protected virtual void RotateCameraInput()
         {
             if (commandInput.E)
@@ -151,12 +228,14 @@ namespace TRPG
             }
         }
 
+        [Client]
         protected virtual void MoveCameraInput()
         {
             if (commandInput.MoveCameraInput.magnitude > 0.1f)
                 SceneCamera.Singleton.Move(commandInput.MoveCameraInput.x, commandInput.MoveCameraInput.y);
         }
-
+        
+        [Client]
         protected virtual void ChangeFireTargetInput()
         {
             if (commandInput.Tab)
@@ -166,7 +245,7 @@ namespace TRPG
         }
 
         [ServerRpc]
-        protected virtual void ChangeNextUnit()
+        protected virtual void ChangeNextUnit_RPC_Server()
         {
             if (selectedUnit.Value != null)
             {
@@ -183,7 +262,7 @@ namespace TRPG
         }
 
         [ServerRpc]
-        protected virtual void ChangePrevUnit()
+        protected virtual void ChangePrevUnit_RPC_Server()
         {
             if (selectedUnit.Value != null)
             {
@@ -209,7 +288,7 @@ namespace TRPG
         }
 
         [ServerRpc]
-        protected virtual void OnMovePlayerUnit(Vector3 destination)
+        protected virtual void MoveUnitTo_RPC_Server(Vector3 destination)
         {
             if (selectedUnit.Value.TryMovePlayerUnit(destination))
                 SpendActionPoint(selectedUnit.Value, ActionPointCost.Half);
@@ -230,12 +309,13 @@ namespace TRPG
                 {
                     if (selectedUnit.IsSelected)
                     {
-                        AssignSelectedUnitRpc(null);
+                        AssignSelectedUnit_RPC_Server(null);
                     }
                     else
                     {
-                        AssignSelectedUnitRpc(selectedUnit);
+                        AssignSelectedUnit_RPC_Server(selectedUnit);
                     }
+                    hud.SetUnitName(unitConfig.GetUnitProfileById(selectedUnit.Data.id).unitName);
                 }
             }
             else
@@ -245,7 +325,7 @@ namespace TRPG
         }
 
         [ServerRpc]
-        protected virtual void AssignSelectedUnitRpc(UnitController unit)
+        protected virtual void AssignSelectedUnit_RPC_Server(UnitController unit)
         {
             AssignSelectedUnit(unit);
         }
@@ -259,6 +339,12 @@ namespace TRPG
             selectedUnit.Value = unit;
             if (selectedUnit.Value != null)
                 selectedUnit.Value.Select(true);
+        }
+
+        [ObserversRpc]
+        protected virtual void AssignSelectedUnit_RPC_Client(string unitID)
+        {
+
         }
 
         [Server]
@@ -276,6 +362,7 @@ namespace TRPG
             });
         }
 
+        #region Turns Logic
         [Server]
         public virtual void StartOwnerTurn()
         {
@@ -296,28 +383,29 @@ namespace TRPG
         }
 
         [ServerRpc]
-        protected virtual void EndTurn()
+        protected virtual void EndTurn_RPC_Server()
         {
-            TRPGGameManager.Instance.ChangeNextPlayerTurn();
+            NetworkPlayerManager.Instance.ChangeNextPlayerTurn();
         }
 
         [ObserversRpc]
-        public virtual void StartTurnCallback()
+        protected virtual void StartTurnCallback()
         {
             if (IsOwner)
             {
-                
+
             }
         }
 
         [ObserversRpc]
-        public virtual void OnStopTurnCallback()
+        protected virtual void OnStopTurnCallback()
         {
             if (IsOwner)
             {
-                
+
             }
         }
+        #endregion
 
         #region Action Points
 
@@ -351,6 +439,35 @@ namespace TRPG
         }
         #endregion
 
+        private void _ActiveUnits_OnChange(SyncDictionaryOperation op, UnitController key, int value, bool asServer)
+        {
+            /* Key will be provided for
+            * Add, Remove, and Set. */
+            switch (op)
+            {
+                //Adds key with value.
+                case SyncDictionaryOperation.Add:
+                    break;
+                //Removes key.
+                case SyncDictionaryOperation.Remove:
+
+                    if (unitDictionary.Count == 0) // Mark the player is defeated when his/her units are all dead.
+                        if (IsOwner)
+                            Surrender();
+
+                    break;
+                //Sets key to a new value.
+                case SyncDictionaryOperation.Set:
+                    break;
+                //Clears the dictionary.
+                case SyncDictionaryOperation.Clear:
+                    break;
+                //Like SyncList, indicates all operations are complete.
+                case SyncDictionaryOperation.Complete:
+                    break;
+            }
+        }
+
         public static Ray GetRay()
         {
             Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
@@ -361,7 +478,13 @@ namespace TRPG
         {
             Physics.Raycast(GetRay(), out RaycastHit hit, SceneLayerMasks.GetLayerMaskByCategory(maskCategory));
 
-            return hit.transform ? hit.point : Vector3.zero;
+            return hit.point;
+        }
+
+        
+        public bool AllUnitAreDead()
+        {
+            return unitDictionary.Count == 0;
         }
     }
 }

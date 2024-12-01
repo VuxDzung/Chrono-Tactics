@@ -9,43 +9,59 @@ namespace DevOpsGuy.GUI
     public class LoginPanel : Panel
     {
         [SerializeField]
-        private TMP_InputField usernameInput;
+        private TMP_InputField emailInput;
         [SerializeField]
         private TMP_InputField passwordInput;
         [SerializeField]
-        private Button submitButton;
-        [SerializeField]
-        private Button registerButton;
+        private Button btnSignIn;
 
         public override void Show()
         {
             base.Show();
-
-            submitButton.onClick.AddListener(Login);
-            registerButton.onClick.AddListener(Register);
+            btnSignIn.onClick.AddListener(Login);
         }
 
         public override void Hide()
         {
             base.Hide();
-
-            submitButton.onClick.RemoveListener(Login);
-            registerButton.onClick.RemoveListener(Register);
+            btnSignIn.onClick.RemoveListener(Login);
         }
 
         private void Login()
         {
-            UIManager.Singleton.Load.LoadScene("Home", () => { 
-                Debug.Log("LOAD TO HOME SCENE"); 
-                //UIManager.Singleton.ShowUI<>
-            });
+            string userName = emailInput.text;
+            string password = passwordInput.text;
+
+            if (!string.IsNullOrEmpty(userName) && !string.IsNullOrEmpty(password))
+            {
+                manager.HideUI(this);
+                manager.ShowUI<StarterPanel>();
+            }
+            else
+            {
+                manager.ShowUI<MessageBox>().SetMessage("Empty Fields", "Username/Password is empty!");
+            }
+            //UIManager.Singleton.Load.LoadScene(SceneConfig.SCENE_MENU, () => { 
+            //    Debug.Log("LOAD TO HOME SCENE"); 
+            //    //UIManager.Singleton.ShowUI<>
+            //});
         }
 
-        private void Register()
+        public void Register()
         {
             Debug.Log("NAVIGATE:Register");
-            UIManager.HideAll();
-            UIManager.ShowUI<RegisterPanel>();
+            manager.HideUI(this);
+            manager.ShowUI<RegisterPanel>();
+        }
+
+        public void NavigateRegister()
+        {
+
+        }
+
+        public void NavigateForgotPW()
+        {
+
         }
     }
 }

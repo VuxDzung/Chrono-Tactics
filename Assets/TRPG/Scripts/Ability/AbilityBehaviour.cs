@@ -42,20 +42,26 @@ namespace TRPG
             if (IsAbilityType(type)) OnActivateServer();
         }
 
+        [Server]
         protected virtual void OnSelectServer() { }
+        [Server]
         protected virtual void OnDeselectServer() { }
+        [Server]
         protected virtual void OnActivateServer() { }
-
+        [Server]
         protected virtual void OnDelayStartedServer() { }
+        [Server]
         protected virtual void OnDelayFinishedServer() { }
+        [Server]
         protected virtual void OnDurationStartedServer() { }
+
+        [Server]
         protected virtual void OnDurationFinishedServer() { }
         #endregion
 
         #region Callback
         public void OnSelectCallback(AbilityType type, bool isOwner)
         {
-            Debug.Log($"{context.gameObject.name} | Ability: {type}");
             if (IsAbilityType(type)) OnSelectCallback(isOwner);
         }
         public void OnDeselectCallback(AbilityType type, bool isOwner)
@@ -71,55 +77,63 @@ namespace TRPG
         protected virtual void OnDeselectCallback(bool isOwner) { } 
         protected virtual void OnActivateCallback(bool isOwner) { }
 
-        [ObserversRpc]
-        protected virtual void OnDelayStartedCallback() { }
-        [ObserversRpc]
-        protected virtual void OnDelayFinishedCallback() { }
-        [ObserversRpc]
-        protected virtual void OnDurationFinishedCallback() { }
-        [ObserversRpc]
-        protected virtual void OnDurationStartedCallback() { }
+        protected virtual void OnDelayStartedClient(bool asOwner) { }
+        protected virtual void OnDelayFinishedClient(bool asOwner) { }
+        protected virtual void OnDurationStartedClient(bool asOwner) { }
+        protected virtual void OnDurationFinishedClient(bool asOwner) { }
+
         #endregion
 
         #region Timer
-        public void OnDelayStarted(AbilityType type, bool asServer)
+        public void OnDelayStarted(AbilityType type, bool asServer, bool asOwner)
         {
             if (IsAbilityType(type))
             {
                 if (asServer)
                 {
                     OnDelayStartedServer();
-                    OnDelayStartedCallback();
+                }
+                else
+                {
+                    OnDelayStartedClient(asOwner);
                 }
             }
         }
-        public void OnDelayFinished(AbilityType type, bool asServer)
+        public void OnDelayFinished(AbilityType type, bool asServer, bool asOwner)
         {
             if (IsAbilityType(type)) 
             {
                 if (asServer)
                 {
                     OnDelayFinishedServer();
-                    OnDelayFinishedCallback();
+                }
+                else
+                {
+                    OnDelayFinishedClient(asOwner);
                 }
             }
         }
-        public void OnDurationStart(AbilityType type, bool asServer)
+        public void OnDurationStart(AbilityType type, bool asServer, bool asOwner)
         {
             if (IsAbilityType(type))
             {
-                OnDurationStartedServer();
-                OnDurationStartedCallback();
+                if (asServer)
+                    OnDurationStartedServer();
+                else
+                    OnDurationStartedClient(asOwner);
             }
         }
-        public void OnDurationFinished(AbilityType type, bool asServer)
+        public void OnDurationFinished(AbilityType type, bool asServer, bool asOwner)
         {
             if (IsAbilityType(type))
             {
                 if (asServer)
                 {
                     OnDurationFinishedServer();
-                    OnDurationFinishedCallback();
+                }
+                else
+                {
+                    OnDurationFinishedClient(asOwner);
                 }
             }
         }

@@ -2,6 +2,7 @@ using DevOpsGuy.GUI;
 using FishNet;
 using FishNet.Object;
 using FishNet.Object.Synchronizing;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -10,24 +11,28 @@ namespace TRPG.Unit
 {
     public class UnitCombatBrain : CoreNetworkBehaviour
     {
+        public static readonly int FULL_COVER_DECS_PERCENT = 40;
+        public static readonly int HALF_COVER_DECS_PERCENT = 20;
+
         [SerializeField] private Transform fireTransform;
+
+        public Action<bool> OnScanningComplete;
+        public Action<bool, bool> OnScanningCompleteCallback;
 
         protected UnitController context;
 
         private readonly SyncVar<int> fireCounter = new SyncVar<int>();
         private readonly SyncVar<float> currentHitChange = new SyncVar<float>();
-        private readonly SyncVar<bool> hasEnemy = new SyncVar<bool>();
+        private readonly SyncVar<bool> hasEnemy = new SyncVar<bool>(new SyncTypeSettings(0.01f, FishNet.Transporting.Channel.Reliable));
         private readonly SyncVar<bool> IsInOverwatch = new SyncVar<bool>();
         public readonly SyncVar<bool> IsGrenadeAbility = new SyncVar<bool>();
-        private readonly SyncVar<Vector3> grenadeEndPosition = new SyncVar<Vector3>();
+        private readonly SyncVar<Vector3> grenadeEndPosition = new SyncVar<Vector3>(new SyncTypeSettings(0.01f, FishNet.Transporting.Channel.Reliable));
 
         #region Server-Side fields [These fields cannot be read on client side]
         private List<HealthController> scannedEnemyList = new List<HealthController>();
         private int currentEnemyIndex;
         private bool hasAttackedInOverwatch;
         #endregion
-
-        public bool HasEnemy => hasEnemy.Value;
 
         #region Client-Side fields
         private AimHUD aimHUD;
@@ -43,7 +48,7 @@ namespace TRPG.Unit
             base.OnStartClient();
             if (IsOwner)
             {
-                aimHUD = UIManager.GetUI<AimHUD>();
+                aimHUD = UIManager.GetUIStatic<AimHUD>();
             }
         }
 
@@ -75,8 +80,7 @@ namespace TRPG.Unit
                 {
                     if (Input.GetKeyDown(KeyCode.Mouse0))
                     {
-                        grenadeEndPosition.Value = NetworkPlayer.GetMouseWorldPosition(MaskCategory.Ground);
-                        SetEndPosition(grenadeEndPosition.Value);
+                        SetEndPosition(NetworkPlayer.GetMouseWorldPosition(MaskCategory.Ground));
                         context.AbilityController.ConfirmAbility();
                     }
                 }
@@ -86,15 +90,21 @@ namespace TRPG.Unit
         [Server]
         public virtual void Scanning()
         {
+            scannedEnemyList.Clear();
+
             Collider[] colliders = Physics.OverlapSphere(transform.position, context.Data.viewRadius, SceneLayerMasks.GetLayerMaskByCategory(MaskCategory.Unit));
+
             List<HealthController> enemyList = new List<HealthController>();
             foreach (Collider collider in colliders)
             {
+                
                 HealthController sceneUnit = collider.GetComponent<HealthController>();
-                if (sceneUnit != null && !sceneUnit.IsDead)
+                if (sceneUnit != null && !sceneUnit.IsDead && sceneUnit.OwnerId != OwnerId)
                     enemyList.Add(sceneUnit);
             }
-            scannedEnemyList.Clear();
+
+            Debug.Log($"Unit: {gameObject.name} | Colliders: {colliders.Length} | Actual Enemy: {enemyList.Count}");
+
             scannedEnemyList = enemyList;
 
             //Aim to the first enemy.
@@ -110,6 +120,14 @@ namespace TRPG.Unit
                 //Message: No enemy available!
                 hasEnemy.Value = false;
             }
+            OnScanningComplete?.Invoke(hasEnemy.Value);
+            ScanningCompletetCallback(hasEnemy.Value);
+        }
+
+        [ObserversRpc]
+        private void ScanningCompletetCallback(bool hasEnemy)
+        {
+            OnScanningCompleteCallback?.Invoke(hasEnemy, IsOwner);
         }
 
         [Server]
@@ -131,7 +149,7 @@ namespace TRPG.Unit
             UnitController enemyUnit = enemy.GetComponent<UnitController>();
             currentHitChange.Value = CalculateHitChance(enemyUnit, context.WeaponManager.CurrentWeaponData.baseAccuracy);
             
-            OnSelectTargetCallback(enemyUnit.Data.unitName, currentHitChange.Value);
+            OnSelectTargetCallback(enemyUnit.Profile.unitName, currentHitChange.Value);
         }
 
         public float CalculateHitChance(UnitController target, float accuracy)
@@ -142,17 +160,18 @@ namespace TRPG.Unit
             float distance = (modifiedEnemyPos - fireTransform.position).magnitude;
             CoverType cover = DetermineCoverType(modifiedEnemyPos);
 
-            baseHitChance -= (int)(distance * 1); // Decrease hit chance by 1% per unit distance [Dung]
+            int decreaseDistancePercentage = 1;
+            baseHitChance -= (int)(distance * decreaseDistancePercentage); // Decrease hit chance by 1% per unit distance [Dung]
 
             switch (cover)
             {
-                case CoverType.None:
-                    break; // No adjustment if there's no cover
+                case CoverType.None: // No adjustment if there's no cover [Dung].
+                    break; 
                 case CoverType.HalfCover:
-                    baseHitChance -= 20; // Reduce hit chance by 10% for half cover
+                    baseHitChance -= FULL_COVER_DECS_PERCENT; // Reduce hit chance by 10% for half cover [Dung].
                     break;
                 case CoverType.FullCover:
-                    baseHitChance -= 40; // Reduce hit chance by 20% for full cover
+                    baseHitChance -= HALF_COVER_DECS_PERCENT; // Reduce hit chance by 20% for full cover [Dung].
                     break;
             }
 
@@ -177,9 +196,9 @@ namespace TRPG.Unit
         }
 
         [Server]
-        public bool IsHit(float hitChance)
+        private bool IsHit(float hitChance)
         {
-            int roll = Random.Range(0, 100);
+            int roll = UnityEngine.Random.Range(0, 100);
             Debug.Log($"Rolled Hit Change: {roll}");
             return roll <= hitChance;
         }
@@ -188,13 +207,14 @@ namespace TRPG.Unit
         private void SetEndPosition(Vector3 endPosition)
         {
             grenadeEndPosition.Value = endPosition;
+            Debug.Log($"EndPosSync: {grenadeEndPosition.Value} | Param: {endPosition}");
         }
 
         [Server]
         public void RotateToTossDirection()
         {
             Vector3 direction = grenadeEndPosition.Value - transform.position;
-            context.Motor.RotateToDirection(direction);
+            context.CC.RotateToDirection(direction);
         }
 
         #region Server-Logic [Overwatch] 
@@ -306,6 +326,7 @@ namespace TRPG.Unit
             NetworkObject networkGrenadeObject = InstanceFinder.NetworkManager.GetPooledInstantiated(grenadeData.weaponPrefab.GetComponent<NetworkObject>(), context.BoneController.GetBoneRefByHandler(Handler.RightHand).transform.position, Quaternion.identity, true);
             ServerManager.Spawn(networkGrenadeObject, Owner);
             NetworkGrenade netGrenade = networkGrenadeObject.GetComponent<NetworkGrenade>();
+            Debug.Log($"GrenadeDesitnation: {grenadeEndPosition.Value}");
             netGrenade.Toss(context.BoneController.GetBoneRefByHandler(Handler.RightHand).transform.position, grenadeEndPosition.Value, grenadeData.baseDamage, grenadeData.grenadeSettings.blastRadius);
         }
 

@@ -18,8 +18,8 @@ namespace TRPG.Unit.AI
 
         protected override void UpdateAnimator()
         {
-            Log("AI", $"{aiContext.gameObject.name}.MoveMagnitude={aiContext.Motor.MoveMagnitude}", TextColor.Green);
-            animator.SetFloat(PARAM_MOVE_MAGNITUDE, aiContext.Motor.MoveMagnitude, 0.15f, Time.deltaTime);
+            Log("AI", $"{aiContext.gameObject.name}.MoveMagnitude={aiContext.CC.MoveMagnitude}", TextColor.Green);
+            animator.SetFloat(PARAM_MOVE_MAGNITUDE, aiContext.CC.MoveMagnitude, 0.15f, Time.deltaTime);
         }
     }
 }

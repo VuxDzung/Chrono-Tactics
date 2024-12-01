@@ -11,11 +11,13 @@ namespace TRPG
 {
     public class HUD : Panel
     {
+        public static Action OnSurrender;
         public static Action OnEndTurn;
         public static Action OnNextUnit;
         public static Action OnPrevUnit;
         public static Action OnSwapWeapon;
 
+        [SerializeField] private Button btnSurrender;
         [SerializeField] private TextMeshProUGUI tmpUnitName;
         [SerializeField] private UIUnitAbility uiAbility;
         [SerializeField] private Transform uiParent;
@@ -31,6 +33,7 @@ namespace TRPG
 
         private void OnEnable()
         {
+            btnSurrender.onClick.AddListener(Surrender);
             btnEndTurn.onClick.AddListener(EndTurn);
             btnNextUnit.onClick.AddListener(ChangeNextUnit);
             btnPrevUnit.onClick.AddListener(OnChangePrevUnit);
@@ -39,6 +42,7 @@ namespace TRPG
 
         private void OnDisable()
         {
+            btnSurrender.onClick.RemoveListener(Surrender);
             btnEndTurn.onClick.RemoveListener(EndTurn);
             btnNextUnit.onClick.RemoveListener(ChangeNextUnit);
             btnPrevUnit.onClick.RemoveListener(OnChangePrevUnit);
@@ -83,6 +87,11 @@ namespace TRPG
         private void ChangeNextUnit()
         {
             OnNextUnit?.Invoke();
+        }
+
+        private void Surrender()
+        {
+            OnSurrender?.Invoke();
         }
 
         private void OnChangePrevUnit()

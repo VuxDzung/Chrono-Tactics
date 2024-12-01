@@ -46,7 +46,7 @@ namespace TRPG
         {
             WeaponData primaryWeaponData = config.GetDataBydId(primaryWeaponId.Value);
             WeaponData secondaryWeaponData = config.GetDataBydId(secondaryWeaponId.Value);
-            UIManager.GetUI<HUD>().SwapSpriteField.SetSprites(primaryWeaponData.thumbnail, secondaryWeaponData.thumbnail);
+            UIManager.GetUIStatic<HUD>().SwapSpriteField.SetSprites(primaryWeaponData.thumbnail, secondaryWeaponData.thumbnail);
         }
 
         /// <summary>

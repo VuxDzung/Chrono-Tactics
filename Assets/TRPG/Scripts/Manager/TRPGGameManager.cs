@@ -24,22 +24,26 @@ namespace TRPG.Unit
         private readonly SyncVar<int> currentPlayerIndex = new SyncVar<int>();
         private NetworkManager networkManager;
 
-        private void Start()
+        private void Awake()
         {
             Instance = this;
+        }
+
+        private void Start()
+        {
             Initialize();
-            networkManager.SceneManager.OnClientLoadedStartScenes += SceneManager_OnClientLoadedStartScenes;
         }
 
         private void Initialize()
         {
             // Get the NetworkManager instance
-            networkManager = InstanceFinder.NetworkManager;
+            networkManager = NetworkManager;
             if (networkManager == null)
             {
                 Debug.LogWarning($"PlayerSpawner on {gameObject.name} cannot work as NetworkManager wasn't found on this object or within parent objects.");
                 return;
             }
+            networkManager.SceneManager.OnClientLoadedStartScenes += SceneManager_OnClientLoadedStartScenes;
             // Add this event so we can spawn the player
             //InvokeRepeating("CheckNetworkConnection", 2, 7);
         }
@@ -77,11 +81,12 @@ namespace TRPG.Unit
             if (addToDefaultScene)
                 networkManager.SceneManager.AddOwnerToDefaultScene(nob);
 
-            player.Initialized(SceneSpawnAreaManager.S.GetArea(), conn);
+            //player.Initialized(SceneSpawnAreaManager.S.GetArea(), conn);
             SceneSpawnAreaManager.S.IncreaseAreaIndex();
 
             StartFirstPlayerTurn(player);
         }
+
 
         [Server]
         public void StartFirstPlayerTurn(NetworkPlayer player)
