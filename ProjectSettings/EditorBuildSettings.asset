@@ -5,7 +5,16 @@ EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Scenes:
-  - enabled: 1
+  - enabled: 0
     path: Assets/TRPG/Scenes/DemoMap.unity
     guid: 99c9720ab356a0642a771bea13969a05
+  - enabled: 1
+    path: Assets/TRPG/Scenes/Starter.unity
+    guid: b29b61a7d8387a6409279b63b9a31106
+  - enabled: 1
+    path: Assets/TRPG/Scenes/Menu.unity
+    guid: 3bdc344c335ef4645b282dc2e18e4475
+  - enabled: 1
+    path: Assets/TRPG/Scenes/Gameplay_Desert.unity
+    guid: 130de191e9bf7de41a659f68e5741ed0
   m_configObjects: {}

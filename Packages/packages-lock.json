@@ -9,6 +9,12 @@
       },
       "hash": "591ef0feca00dfb0d529ea99bb323b3f770ae39d"
     },
+    "com.distantlands.cozy.core": {
+      "version": "file:com.distantlands.cozy.core",
+      "depth": 0,
+      "source": "embedded",
+      "dependencies": {}
+    },
     "com.unity.ai.navigation": {
       "version": "1.1.5",
       "depth": 0,
